@@ -1841,7 +1841,8 @@
 
     window.handleCustomerSearchSubmit = function(e) {
       if (e) e.preventDefault();
-      const query = (document.getElementById('customerSearchInput').value.trim() || targetTrackingCode).toUpperCase();
+      const inputEl = document.getElementById('portalTrackingInput');
+      const query = (inputEl && inputEl.value.trim() ? inputEl.value.trim() : targetTrackingCode).toUpperCase();
       if (!query) return;
 
       const found = allShipments.find(s => 
@@ -1852,6 +1853,14 @@
       if (found) {
         activeCustomerShipment = found;
         renderCustomerTrackingView(found);
+        if (inputEl) inputEl.value = found.trackingNumber;
+        
+        // Update URL hash/query without reloading so customer can bookmark or refresh
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set('track', found.trackingNumber);
+          window.history.replaceState({}, '', url.toString());
+        } catch(err) {}
       } else {
         document.getElementById('customerActiveCard').classList.add('hidden');
         const notFound = document.getElementById('customerNotFoundState');
@@ -2063,7 +2072,21 @@
       }
     };
 
+    // Safe Brand Logo Navigation (Guarantees external users cannot break into staff view)
+    window.handleBrandLogoClick = function() {
+      if (isCustomerLinkMode) {
+        switchView('customer');
+        return;
+      }
+      switchView('staff');
+    };
+
     window.switchView = function(view) {
+      // Security Enforcement: Prevent external users from entering staff hub
+      if (isCustomerLinkMode && view === 'staff') {
+        return;
+      }
+
       const staffView = document.getElementById('staffView');
       const customerView = document.getElementById('customerView');
       const navStaffBtn = document.getElementById('navStaffBtn');
@@ -2072,18 +2095,19 @@
       if (view === 'staff') {
         staffView.classList.remove('hidden');
         customerView.classList.add('hidden');
-        navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
-        navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
+        if (navStaffBtn) navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
+        if (navCustomerBtn) navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
       } else {
         staffView.classList.add('hidden');
         customerView.classList.remove('hidden');
-        navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
-        navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
+        if (navCustomerBtn) navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
+        if (navStaffBtn) navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
 
         if (!activeCustomerShipment && selectedShipmentId) {
           const s = allShipments.find(item => item.id === selectedShipmentId);
           if (s) {
-            document.getElementById('customerSearchInput').value = s.trackingNumber;
+            const portalInput = document.getElementById('portalTrackingInput');
+            if (portalInput) portalInput.value = s.trackingNumber;
             window.handleCustomerSearchSubmit();
           }
         }
@@ -2096,7 +2120,8 @@
       const s = allShipments.find(item => item.id === selectedShipmentId);
       if (!s) return;
 
-      document.getElementById('customerSearchInput').value = s.trackingNumber;
+      const portalInput = document.getElementById('portalTrackingInput');
+      if (portalInput) portalInput.value = s.trackingNumber;
       switchView('customer');
       window.handleCustomerSearchSubmit();
     };
@@ -2150,7 +2175,7 @@
         document.getElementById('customerView')?.classList.remove('hidden');
         document.getElementById('customerDirectHeader')?.classList.remove('hidden');
 
-        const searchInput = document.getElementById('customerSearchInput');
+        const searchInput = document.getElementById('portalTrackingInput');
         if (searchInput) searchInput.value = targetTrackingCode;
       }
     }
