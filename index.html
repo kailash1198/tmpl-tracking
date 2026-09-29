@@ -1,1040 +1,933 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftTrack - Real-Time Shipment & Milestone Portal</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        }
-                    }
-                }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftTrack - Real-Time Shipment & Milestone Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
             }
+          }
         }
-    </script>
-    <style>
-        /* Smooth scrollbars and custom transitions */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 9999px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        .pulse-dot {
-            animation: pulseAnimation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @keyframes pulseAnimation {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: .35;
-                transform: scale(1.15);
-            }
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    /* Smooth scrollbars and custom transitions */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .pulse-dot {
+      animation: pulseAnimation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulseAnimation {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .35; transform: scale(1.15); }
+    }
+  </style>
 </head>
-
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
 
-    <!-- Top Navigation Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo & Brand -->
-                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('staff')">
-                    <div
-                        class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                        <i data-lucide="package-check" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <span class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
-                            SwiftTrack <span
-                                class="text-xs px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-700 border border-blue-200">LIVE</span>
-                        </span>
-                        <p class="text-xs text-slate-500 font-medium hidden sm:block">Real-Time Milestone Cloud Portal
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Role / View Mode Toggle & Firebase Settings -->
-                <div class="flex items-center space-x-2 sm:space-x-3">
-                    <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
-                        <button id="navStaffBtn" onclick="switchView('staff')"
-                            class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
-                            <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
-                            <span>Staff Hub</span>
-                        </button>
-                        <button id="navCustomerBtn" onclick="switchView('customer')"
-                            class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
-                            <i data-lucide="user" class="w-4 h-4 text-slate-500"></i>
-                            <span>Customer Portal</span>
-                        </button>
-                    </div>
-
-                    <!-- Firebase Cloud Config Button -->
-                    <button onclick="openConfigModal()" title="Firebase Settings for Netlify / Web"
-                        class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl border border-slate-200 transition flex items-center gap-1 text-xs">
-                        <i data-lucide="database" class="w-4 h-4 text-amber-500"></i>
-                        <span id="cloudStatusBadge" class="hidden md:inline font-medium">Cloud Setup</span>
-                    </button>
-
-                    <button id="quickCreateBtn" onclick="openCreateShipmentModal()"
-                        class="hidden sm:inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition shadow-sm">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                        <span>New Shipment</span>
-                    </button>
-                </div>
-            </div>
+  <!-- Top Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo & Brand -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('staff')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+            <i data-lucide="package-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <span class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
+              SwiftTrack <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-700 border border-blue-200">LIVE</span>
+            </span>
+            <p class="text-xs text-slate-500 font-medium hidden sm:block">Real-Time Milestone Cloud Portal</p>
+          </div>
         </div>
-    </header>
 
-    <!-- Toast Notification Container -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+        <!-- Role / View Mode Toggle & Firebase Settings -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
+            <button id="navStaffBtn" onclick="switchView('staff')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
+              <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
+              <span>Staff Hub</span>
+            </button>
+            <button id="navCustomerBtn" onclick="switchView('customer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900">
+              <i data-lucide="user" class="w-4 h-4 text-slate-500"></i>
+              <span>Customer Portal</span>
+            </button>
+          </div>
 
-    <!-- Main View Router Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <!-- Firebase Cloud Config Button -->
+          <button onclick="openConfigModal()" title="Firebase Settings for Netlify / Web" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl border border-slate-200 transition flex items-center gap-1 text-xs">
+            <i data-lucide="database" class="w-4 h-4 text-amber-500"></i>
+            <span id="cloudStatusBadge" class="hidden md:inline font-medium">Cloud Setup</span>
+          </button>
 
-        <!-- ========================================== -->
-        <!-- VIEW 1: STAFF MANAGEMENT HUB               -->
-        <!-- ========================================== -->
-        <div id="staffView" class="space-y-6">
-            <!-- Welcome & Metrics Banner -->
-            <div
-                class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <button id="quickCreateBtn" onclick="openCreateShipmentModal()" class="hidden sm:inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl transition shadow-sm">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>New Shipment</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Main View Router Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: STAFF MANAGEMENT HUB               -->
+    <!-- ========================================== -->
+    <div id="staffView" class="space-y-6">
+      <!-- Welcome & Metrics Banner -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-bold text-slate-900">Operations Command Center</h1>
+            <span id="connectionBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Live Firebase Connected
+            </span>
+          </div>
+          <p class="text-sm text-slate-500 mt-1">Manage, update real-time progress, and publish verifiable milestones for customers.</p>
+        </div>
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <button onclick="openCreateShipmentModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm transition">
+            <i data-lucide="package-plus" class="w-4 h-4"></i>
+            <span>Create Shipment</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Counters -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Shipments</p>
+            <p id="statTotal" class="text-2xl font-bold text-slate-900 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i data-lucide="boxes" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">In Transit</p>
+            <p id="statInTransit" class="text-2xl font-bold text-amber-600 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i data-lucide="truck" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Delivered</p>
+            <p id="statDelivered" class="text-2xl font-bold text-emerald-600 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Exceptions / Hold</p>
+            <p id="statPending" class="text-2xl font-bold text-rose-600 mt-1">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Shipments List Column -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+          <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+            <h2 class="font-semibold text-slate-900 flex items-center gap-2">
+              <i data-lucide="list" class="w-4 h-4 text-slate-600"></i>
+              Shipments Registry
+            </h2>
+            <div class="relative w-44 sm:w-52">
+              <input type="text" id="shipmentSearchInput" oninput="handleShipmentFilter()" placeholder="Search tracking, user..." 
+                class="w-full text-xs pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+            </div>
+          </div>
+          <div id="shipmentsListContainer" class="divide-y divide-slate-100 max-h-[640px] overflow-y-auto">
+            <div class="p-8 text-center text-slate-400">Loading shipments...</div>
+          </div>
+        </div>
+
+        <!-- Selected Shipment Management Workstation -->
+        <div class="lg:col-span-7 space-y-6">
+          <div id="shipmentDetailEmptyState" class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center text-slate-500">
+            <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-500 mx-auto flex items-center justify-center mb-3">
+              <i data-lucide="mouse-pointer-click" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-semibold text-slate-800 text-lg">No Shipment Selected</h3>
+            <p class="text-sm text-slate-500 max-w-sm mx-auto mt-1">Select a shipment from the registry on the left to edit overall status or add chronological milestones.</p>
+          </div>
+
+          <div id="shipmentDetailWorkstation" class="hidden space-y-6">
+            <!-- Active Shipment Header Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-slate-100">
                 <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-2xl font-bold text-slate-900">Operations Command Center</h1>
-                        <span id="connectionBadge"
-                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            Live Firebase Connected
-                        </span>
-                    </div>
-                    <p class="text-sm text-slate-500 mt-1">Manage, update real-time progress, and publish verifiable
-                        milestones for customers.</p>
-                </div>
-                <div class="flex items-center gap-3 w-full sm:w-auto">
-                    <button onclick="openCreateShipmentModal()"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm transition">
-                        <i data-lucide="package-plus" class="w-4 h-4"></i>
-                        <span>Create Shipment</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Quick Metrics Counters -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div
-                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Shipments</p>
-                        <p id="statTotal" class="text-2xl font-bold text-slate-900 mt-1">0</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                        <i data-lucide="boxes" class="w-5 h-5"></i>
-                    </div>
-                </div>
-                <div
-                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">In Transit</p>
-                        <p id="statInTransit" class="text-2xl font-bold text-amber-600 mt-1">0</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                        <i data-lucide="truck" class="w-5 h-5"></i>
-                    </div>
-                </div>
-                <div
-                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Delivered</p>
-                        <p id="statDelivered" class="text-2xl font-bold text-emerald-600 mt-1">0</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    </div>
-                </div>
-                <div
-                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Exceptions / Hold</p>
-                        <p id="statPending" class="text-2xl font-bold text-rose-600 mt-1">0</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <!-- Shipments List Column -->
-                <div
-                    class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                    <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-                        <h2 class="font-semibold text-slate-900 flex items-center gap-2">
-                            <i data-lucide="list" class="w-4 h-4 text-slate-600"></i>
-                            Shipments Registry
-                        </h2>
-                        <div class="relative w-44 sm:w-52">
-                            <input type="text" id="shipmentSearchInput" oninput="handleShipmentFilter()"
-                                placeholder="Search tracking, user..."
-                                class="w-full text-xs pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
-                        </div>
-                    </div>
-                    <div id="shipmentsListContainer" class="divide-y divide-slate-100 max-h-[640px] overflow-y-auto">
-                        <div class="p-8 text-center text-slate-400">Loading shipments...</div>
-                    </div>
-                </div>
-
-                <!-- Selected Shipment Management Workstation -->
-                <div class="lg:col-span-7 space-y-6">
-                    <div id="shipmentDetailEmptyState"
-                        class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center text-slate-500">
-                        <div
-                            class="w-16 h-16 rounded-full bg-blue-50 text-blue-500 mx-auto flex items-center justify-center mb-3">
-                            <i data-lucide="mouse-pointer-click" class="w-8 h-8"></i>
-                        </div>
-                        <h3 class="font-semibold text-slate-800 text-lg">No Shipment Selected</h3>
-                        <p class="text-sm text-slate-500 max-w-sm mx-auto mt-1">Select a shipment from the registry on
-                            the left to edit overall status or add chronological milestones.</p>
-                    </div>
-
-                    <div id="shipmentDetailWorkstation" class="hidden space-y-6">
-                        <!-- Active Shipment Header Card -->
-                        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                            <div
-                                class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b border-slate-100">
-                                <div>
-                                    <div class="flex items-center gap-2.5">
-                                        <span id="detailTrackingNumber"
-                                            class="text-xl font-extrabold text-slate-900 tracking-wide font-mono">TRK-00000000</span>
-                                        <span id="detailStatusBadge"
-                                            class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                                            In Transit
-                                        </span>
-                                    </div>
-                                    <p class="text-xs text-slate-500 mt-1" id="detailCarrierInfo">Carrier: DHL Express
-                                        &bull; Est. Delivery: Oct 3, 2026</p>
-                                </div>
-
-                                <div class="flex items-center gap-2">
-                                    <button onclick="copyCustomerLinkFromDetail()"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
-                                        title="Copy tracking link for recipient">
-                                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                                        <span>Share Customer Link</span>
-                                    </button>
-                                    <button onclick="viewActiveInCustomerPortal()"
-                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
-                                        title="View customer-facing page">
-                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                                        <span>Preview Link</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Quick Origin / Destination Route -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-1">
-                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    <span
-                                        class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Origin
-                                        & Sender</span>
-                                    <p id="detailSender" class="text-sm font-semibold text-slate-800 mt-0.5">Acme Supply
-                                        Co.</p>
-                                    <p id="detailOrigin" class="text-xs text-slate-500">San Francisco, CA, USA</p>
-                                </div>
-                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                    <span
-                                        class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Destination
-                                        & Recipient</span>
-                                    <p id="detailRecipient" class="text-sm font-semibold text-slate-800 mt-0.5">Jane Doe
-                                    </p>
-                                    <p id="detailDestination" class="text-xs text-slate-500">Austin, TX, USA</p>
-                                </div>
-                            </div>
-
-                            <!-- Update Primary Status Controller (Manual Input) -->
-                            <div
-                                class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                                <div class="flex items-center gap-2 flex-1 max-w-md">
-                                    <label for="detailStatusSelect"
-                                        class="text-xs font-semibold text-slate-600 whitespace-nowrap">Current Phase /
-                                        Status:</label>
-                                    <input type="text" id="detailStatusSelect"
-                                        placeholder="e.g. In Transit, Out for Delivery, Customs Hold..."
-                                        class="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                                </div>
-                                <button onclick="handleUpdateShipmentStatus()"
-                                    class="px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition inline-flex items-center gap-1.5">
-                                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                                    <span>Save Status</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Milestone Timeline & Add Milestone Form -->
-                        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
-                            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                                <div>
-                                    <h3 class="font-bold text-slate-900 flex items-center gap-2 text-base">
-                                        <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
-                                        Shipment Milestones
-                                    </h3>
-                                    <p class="text-xs text-slate-500">Chronological logs seen directly by the customer.
-                                    </p>
-                                </div>
-                                <button onclick="toggleAddMilestoneForm()" id="toggleMilestoneBtn"
-                                    class="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1 transition">
-                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                                    <span>Add New Milestone</span>
-                                </button>
-                            </div>
-
-                            <!-- Add Milestone Form (Manual Inputs) -->
-                            <div id="addMilestoneFormSection"
-                                class="hidden bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
-                                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Publish New
-                                    Milestone</h4>
-                                <form id="newMilestoneForm" onsubmit="handleCreateMilestone(event)" class="space-y-3">
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-600 mb-1">Milestone Event
-                                                / Title *</label>
-                                            <input type="text" id="mEventTitle" required
-                                                placeholder="e.g. Arrived at Sorting Facility"
-                                                class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-600 mb-1">Location / Hub
-                                                *</label>
-                                            <input type="text" id="mEventLocation" required
-                                                placeholder="e.g. Denver Sorting Hub, CO"
-                                                class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-600 mb-1">Date & Time
-                                                *</label>
-                                            <input type="datetime-local" id="mEventDateTime" required
-                                                class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-medium text-slate-600 mb-1">Status / Event
-                                                Tag *</label>
-                                            <input type="text" id="mEventStatusTag" required
-                                                placeholder="e.g. In Transit, Out for Delivery, Customs Cleared"
-                                                class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-600 mb-1">Detailed Note /
-                                            Remarks</label>
-                                        <textarea id="mEventNotes" rows="2"
-                                            placeholder="Package scanned and sorted into outbound transport..."
-                                            class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
-                                    </div>
-                                    <div class="flex justify-end gap-2 pt-1">
-                                        <button type="button" onclick="toggleAddMilestoneForm()"
-                                            class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800">Cancel</button>
-                                        <button type="submit" id="saveMilestoneSubmitBtn"
-                                            class="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition inline-flex items-center gap-1.5">
-                                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
-                                            <span>Save & Publish Milestone</span>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <!-- Milestones Timeline List -->
-                            <div id="staffMilestonesTimeline" class="space-y-4">
-                                <!-- Rendered dynamically -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 2: CUSTOMER TRACKING PORTAL           -->
-        <!-- ========================================== -->
-        <div id="customerView" class="hidden space-y-8 max-w-4xl mx-auto">
-            <!-- Search Bar for Customer -->
-            <div
-                class="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-blue-900/10">
-                <div class="max-w-2xl mx-auto text-center space-y-3">
-                    <span
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm border border-white/20">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-300"></i>
-                        Official Tracking Portal
+                  <div class="flex items-center gap-2.5">
+                    <span id="detailTrackingNumber" class="text-xl font-extrabold text-slate-900 tracking-wide font-mono">TRK-00000000</span>
+                    <span id="detailStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                      In Transit
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Track Your Shipment Live</h2>
-                    <p class="text-blue-100 text-xs sm:text-sm">Enter your tracking code or use a shared tracking link
-                        to monitor all transit checkpoints in real time.</p>
-
-                    <form onsubmit="handleCustomerSearchSubmit(event)"
-                        class="mt-6 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
-                        <div class="relative flex-1">
-                            <input type="text" id="customerSearchInput" placeholder="e.g. TRK-89210-US" required
-                                class="w-full px-4 py-3 rounded-xl text-slate-800 text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5"></i>
-                        </div>
-                        <button type="submit"
-                            class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition shadow-md flex items-center justify-center gap-2">
-                            <span>Track Now</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Customer View: Empty / Not Found State -->
-            <div id="customerNotFoundState"
-                class="hidden bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-500">
-                <div
-                    class="w-16 h-16 rounded-full bg-rose-50 text-rose-500 mx-auto flex items-center justify-center mb-3">
-                    <i data-lucide="search-x" class="w-8 h-8"></i>
-                </div>
-                <h3 class="font-bold text-slate-900 text-lg">Shipment Not Found</h3>
-                <p class="text-sm text-slate-500 max-w-md mx-auto mt-1" id="customerNotFoundMsg">Please double-check
-                    your tracking number and try again.</p>
-            </div>
-
-            <!-- Customer Active Tracking Card -->
-            <div id="customerActiveCard" class="hidden space-y-6">
-                <!-- Main Shipment Summary Card -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
-                    <div
-                        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-                        <div>
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tracking
-                                Identifier</span>
-                            <div class="flex items-center gap-2.5 mt-0.5">
-                                <h3 id="custTrackingNum"
-                                    class="text-2xl font-black text-slate-900 font-mono tracking-wide">TRK-00000000</h3>
-                                <button onclick="copyCustomerCurrentLink()"
-                                    class="text-slate-400 hover:text-slate-600 transition" title="Copy tracking link">
-                                    <i data-lucide="copy" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-1" id="custCarrierText">Carrier: DHL Express &bull;
-                                Service: Priority Freight</p>
-                        </div>
-                        <div class="flex flex-col sm:items-end">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Estimated
-                                Delivery</span>
-                            <p id="custEstimatedDelivery" class="text-xl font-bold text-blue-600 mt-0.5">Friday, Oct 4,
-                                2026</p>
-                            <div id="custStatusPill"
-                                class="mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
-                                <span id="custStatusText">In Transit</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dynamic Milestone-Driven Journey Progress Bar -->
-                    <div class="py-2">
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Journey
-                                    Progress</h4>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Dynamic lifecycle checkpoints logged by
-                                    operations team</p>
-                            </div>
-                            <span id="custProgressPercentLabel"
-                                class="text-xs font-bold text-blue-600 font-mono bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
-                                0% Completed
-                            </span>
-                        </div>
-
-                        <div class="overflow-x-auto pb-4 pt-1 -mx-2 px-2">
-                            <div class="relative min-w-[360px] px-6">
-                                <!-- Background Line connecting first and last nodes -->
-                                <div
-                                    class="absolute top-4 left-10 right-10 h-1.5 bg-slate-100 rounded-full z-0 overflow-hidden">
-                                    <!-- Active Filled Line -->
-                                    <div id="custProgressLine"
-                                        class="h-full bg-blue-600 transition-all duration-700 rounded-full"
-                                        style="width: 0%;"></div>
-                                </div>
-
-                                <!-- Dynamic Nodes: Waiting -> Milestone 1 -> Milestone 2 ... -> Delivered -->
-                                <div id="custProgressNodes"
-                                    class="relative z-10 flex justify-between items-start gap-3">
-                                    <!-- Dynamically rendered by updatePipelineProgressBar -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Transit Route Details -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                        <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/70 flex items-start gap-3">
-                            <div
-                                class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="send" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Shipped From
-                                </p>
-                                <p id="custSenderName" class="text-sm font-bold text-slate-900">Pacific Distribution
-                                    Center</p>
-                                <p id="custOriginCity" class="text-xs text-slate-500">Seattle, WA, USA</p>
-                            </div>
-                        </div>
-                        <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/70 flex items-start gap-3">
-                            <div
-                                class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="map-pin" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Destination</p>
-                                <p id="custReceiverName" class="text-sm font-bold text-slate-900">Jane Smith</p>
-                                <p id="custDestCity" class="text-xs text-slate-500">New York, NY, USA</p>
-                            </div>
-                        </div>
-                    </div>
+                  </div>
+                  <p class="text-xs text-slate-500 mt-1" id="detailCarrierInfo">Carrier: DHL Express &bull; Est. Delivery: Oct 3, 2026</p>
                 </div>
 
-                <!-- Milestone History Timeline Card -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                        <div>
-                            <h4 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                                <i data-lucide="clock" class="w-5 h-5 text-blue-600"></i>
-                                Milestone Activity Log
-                            </h4>
-                            <p class="text-xs text-slate-500">Official real-time updates provided by the logistics team.
-                            </p>
-                        </div>
-                        <button onclick="refreshCustomerData()"
-                            class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
-                            title="Refresh data">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-
-                    <!-- Vertical Timeline container -->
-                    <div id="custMilestonesContainer"
-                        class="relative pl-6 sm:pl-8 border-l-2 border-slate-200 ml-4 space-y-8 my-4">
-                        <!-- Dynamically populated -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- MODAL 1: Create New Shipment -->
-    <div id="createShipmentModal"
-        class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div
-            class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-150">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                    <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
-                    Register New Shipment
-                </h3>
-                <button onclick="closeCreateShipmentModal()" class="text-slate-400 hover:text-slate-600 p-1">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <form id="createShipmentForm" onsubmit="handleCreateShipmentSubmit(event)" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tracking Code *</label>
-                        <div class="relative">
-                            <input type="text" id="newTrackingNumber" required
-                                placeholder="e.g. TRK-89210-US or custom code"
-                                class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
-                            <button type="button" onclick="regenerateTrackingCode()"
-                                class="absolute right-2 top-2 text-slate-400 hover:text-blue-600"
-                                title="Suggest random code">
-                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Carrier</label>
-                        <input type="text" id="newCarrier" required value="SwiftExpress Logistics"
-                            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Sender / Merchant</label>
-                        <input type="text" id="newSender" required placeholder="e.g. Apex Electronics Ltd"
-                            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Origin City & Country</label>
-                        <input type="text" id="newOrigin" required placeholder="e.g. Chicago, IL, USA"
-                            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Recipient Name</label>
-                        <input type="text" id="newRecipient" required placeholder="e.g. Alex Mercer"
-                            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Destination Address /
-                            City</label>
-                        <input type="text" id="newDestination" required placeholder="e.g. Austin, TX, USA"
-                            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Estimated Delivery Date</label>
-                        <input type="date" id="newEstDelivery" required
-                            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Status / Phase *</label>
-                        <input type="text" id="newInitialStatus" required
-                            placeholder="e.g. Order Placed, Dispatched, In Transit" value="Order Placed"
-                            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Milestone Note</label>
-                    <input type="text" id="newInitialNote"
-                        placeholder="e.g. Shipment label created and parcel awaiting carrier handover"
-                        class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeCreateShipmentModal()"
-                        class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800">Cancel</button>
-                    <button type="submit" id="submitShipmentBtn"
-                        class="px-5 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition inline-flex items-center gap-1.5">
-                        <i data-lucide="check" class="w-4 h-4"></i>
-                        <span>Register & Publish</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL 2: Firebase Cloud Configuration & Netlify Deployment Guide -->
-    <div id="configModal"
-        class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div
-            class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-150">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
-                        <i data-lucide="database" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-base">Google Firebase Configuration</h3>
-                        <p class="text-[11px] text-slate-500">Live storage across all devices, GitHub & Netlify</p>
-                    </div>
+                  <button onclick="copyCustomerLinkFromDetail()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition" title="Copy tracking link for recipient">
+                    <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                    <span>Share Customer Link</span>
+                  </button>
+                  <button onclick="viewActiveInCustomerPortal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition" title="View customer-facing page">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>Preview Link</span>
+                  </button>
                 </div>
-                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 p-1">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+              </div>
+
+              <!-- Quick Origin / Destination Route -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-1">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Origin & Sender</span>
+                  <p id="detailSender" class="text-sm font-semibold text-slate-800 mt-0.5">Acme Supply Co.</p>
+                  <p id="detailOrigin" class="text-xs text-slate-500">San Francisco, CA, USA</p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Destination & Recipient</span>
+                  <p id="detailRecipient" class="text-sm font-semibold text-slate-800 mt-0.5">Jane Doe</p>
+                  <p id="detailDestination" class="text-xs text-slate-500">Austin, TX, USA</p>
+                </div>
+              </div>
+
+              <!-- Update Primary Status Controller (Manual Input) -->
+              <div class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2 flex-1 max-w-md">
+                  <label for="detailStatusSelect" class="text-xs font-semibold text-slate-600 whitespace-nowrap">Current Phase / Status:</label>
+                  <input type="text" id="detailStatusSelect" placeholder="e.g. In Transit, Out for Delivery, Customs Hold..." class="w-full text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <button onclick="handleUpdateShipmentStatus()" class="px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition inline-flex items-center gap-1.5">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>Save Status</span>
                 </button>
+              </div>
             </div>
 
-            <div class="bg-blue-50/70 border border-blue-100 rounded-xl p-3 text-xs text-blue-800 space-y-1">
-                <p class="font-semibold flex items-center gap-1.5">
-                    <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
-                    Quick 3-Minute Netlify Deployment
-                </p>
-                <p class="text-[11px] leading-relaxed text-blue-700">
-                    1. Create a free project in <a href="https://console.firebase.google.com/" target="_blank"
-                        class="underline font-semibold">Firebase Console</a>.<br>
-                    2. Enable <strong>Firestore Database</strong> (Start in Test Mode).<br>
-                    3. Enable <strong>Authentication &rarr; Sign-in method &rarr; Anonymous</strong>.<br>
-                    4. Copy your project config keys below. They are saved so when you push to GitHub & Netlify, your
-                    site stays live!
-                </p>
-            </div>
-
-            <form id="firebaseConfigForm" onsubmit="saveCustomFirebaseConfig(event)" class="space-y-3">
+            <!-- Milestone Timeline & Add Milestone Form -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">API Key</label>
-                    <input type="text" id="cfgApiKey" placeholder="AIzaSy..."
-                        class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                  <h3 class="font-bold text-slate-900 flex items-center gap-2 text-base">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
+                    Shipment Milestones
+                  </h3>
+                  <p class="text-xs text-slate-500">Chronological logs seen directly by the customer.</p>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Auth Domain</label>
-                        <input type="text" id="cfgAuthDomain" placeholder="your-project.firebaseapp.com"
-                            class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Project ID</label>
-                        <input type="text" id="cfgProjectId" placeholder="your-project-id"
-                            class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Storage Bucket</label>
-                        <input type="text" id="cfgStorageBucket" placeholder="your-project.appspot.com"
-                            class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Messaging Sender ID</label>
-                        <input type="text" id="cfgSenderId" placeholder="1029384756"
-                            class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-700 mb-1">App ID</label>
-                    <input type="text" id="cfgAppId" placeholder="1:1029384756:web:abcd1234"
-                        class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                </div>
+                <button onclick="toggleAddMilestoneForm()" id="toggleMilestoneBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1 transition">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  <span>Add New Milestone</span>
+                </button>
+              </div>
 
-                <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <button type="button" onclick="loadDefaultConfigSample()"
-                        class="text-xs text-slate-500 hover:text-slate-800 underline">
-                        Reset to In-Memory Demo
+              <!-- Add Milestone Form (Manual Inputs) -->
+              <div id="addMilestoneFormSection" class="hidden bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Publish New Milestone</h4>
+                <form id="newMilestoneForm" onsubmit="handleCreateMilestone(event)" class="space-y-3">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-medium text-slate-600 mb-1">Milestone Event / Title *</label>
+                      <input type="text" id="mEventTitle" required placeholder="e.g. Arrived at Sorting Facility" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-slate-600 mb-1">Location / Hub *</label>
+                      <input type="text" id="mEventLocation" required placeholder="e.g. Denver Sorting Hub, CO" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-medium text-slate-600 mb-1">Date & Time *</label>
+                      <input type="datetime-local" id="mEventDateTime" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-slate-600 mb-1">Status / Event Tag *</label>
+                      <input type="text" id="mEventStatusTag" required placeholder="e.g. In Transit, Out for Delivery, Customs Cleared" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">Detailed Note / Remarks</label>
+                    <textarea id="mEventNotes" rows="2" placeholder="Package scanned and sorted into outbound transport..." class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                  </div>
+                  <div class="flex justify-end gap-2 pt-1">
+                    <button type="button" onclick="toggleAddMilestoneForm()" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800">Cancel</button>
+                    <button type="submit" id="saveMilestoneSubmitBtn" class="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition inline-flex items-center gap-1.5">
+                      <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                      <span>Save & Publish Milestone</span>
                     </button>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="closeConfigModal()"
-                            class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800">Close</button>
-                        <button type="submit"
-                            class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition">
-                            Save & Connect
-                        </button>
-                    </div>
-                </div>
-            </form>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Milestones Timeline List -->
+              <div id="staffMilestonesTimeline" class="space-y-4">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- APPLICATION LOGIC & FIREBASE INITIALIZATION -->
-    <script type="module">
-        import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore,
-            collection,
-            doc,
-            setDoc,
-            onSnapshot
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- ========================================== -->
+    <!-- VIEW 2: CUSTOMER TRACKING PORTAL           -->
+    <!-- ========================================== -->
+    <div id="customerView" class="hidden space-y-8 max-w-4xl mx-auto">
+      <!-- Search Bar for Customer -->
+      <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-blue-900/10">
+        <div class="max-w-2xl mx-auto text-center space-y-3">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm border border-white/20">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-300"></i>
+            Official Tracking Portal
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Track Your Shipment Live</h2>
+          <p class="text-blue-100 text-xs sm:text-sm">Enter your tracking code or use a shared tracking link to monitor all transit checkpoints in real time.</p>
 
-        /* Global Context & Firebase setup */
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'swift-track-shipments';
+          <form onsubmit="handleCustomerSearchSubmit(event)" class="mt-6 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
+            <div class="relative flex-1">
+              <input type="text" id="customerSearchInput" placeholder="e.g. TRK-89210-US" required
+                class="w-full px-4 py-3 rounded-xl text-slate-800 text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5"></i>
+            </div>
+            <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3 rounded-xl text-sm transition shadow-md flex items-center justify-center gap-2">
+              <span>Track Now</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </form>
+        </div>
+      </div>
 
-        // Default configuration for standalone demo or platform injection
-        let activeFirebaseConfig = typeof __firebase_config !== 'undefined'
-            ? JSON.parse(__firebase_config)
-            : {
-                apiKey: "demo-api-key",
-                authDomain: "swifttrack-demo.firebaseapp.com",
-                projectId: "swifttrack-demo",
-                storageBucket: "swifttrack-demo.appspot.com",
-                messagingSenderId: "1234567890",
-                appId: "1:1234567890:web:abcdef123456"
-            };
+      <!-- Customer View: Empty / Not Found State -->
+      <div id="customerNotFoundState" class="hidden bg-white rounded-2xl border border-slate-200 p-10 text-center text-slate-500">
+        <div class="w-16 h-16 rounded-full bg-rose-50 text-rose-500 mx-auto flex items-center justify-center mb-3">
+          <i data-lucide="search-x" class="w-8 h-8"></i>
+        </div>
+        <h3 class="font-bold text-slate-900 text-lg">Shipment Not Found</h3>
+        <p class="text-sm text-slate-500 max-w-md mx-auto mt-1" id="customerNotFoundMsg">Please double-check your tracking number and try again.</p>
+      </div>
 
-        let app = null;
-        let auth = null;
-        let db = null;
-        let unsubscribeShipments = null;
-        let currentUser = null;
-        let allShipments = [];
-        let selectedShipmentId = null;
-        let activeCustomerShipment = null;
+      <!-- Customer Active Tracking Card -->
+      <div id="customerActiveCard" class="hidden space-y-6">
+        <!-- Main Shipment Summary Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div>
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tracking Identifier</span>
+              <div class="flex items-center gap-2.5 mt-0.5">
+                <h3 id="custTrackingNum" class="text-2xl font-black text-slate-900 font-mono tracking-wide">TRK-00000000</h3>
+                <button onclick="copyCustomerCurrentLink()" class="text-slate-400 hover:text-slate-600 transition" title="Copy tracking link">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+              </div>
+              <p class="text-xs text-slate-500 mt-1" id="custCarrierText">Carrier: DHL Express &bull; Service: Priority Freight</p>
+            </div>
+            <div class="flex flex-col sm:items-end">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Estimated Delivery</span>
+              <p id="custEstimatedDelivery" class="text-xl font-bold text-blue-600 mt-0.5">Friday, Oct 4, 2026</p>
+              <div id="custStatusPill" class="mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                <span id="custStatusText">In Transit</span>
+              </div>
+            </div>
+          </div>
 
-        // Toast Alert Helper (Zero native browser alert calls)
-        window.showToast = function (message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
+          <!-- Dynamic Milestone-Driven Journey Progress Bar -->
+          <div class="py-2">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Journey Progress</h4>
+                <p class="text-[11px] text-slate-500 mt-0.5">Dynamic lifecycle checkpoints logged by operations team</p>
+              </div>
+              <span id="custProgressPercentLabel" class="text-xs font-bold text-blue-600 font-mono bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+                0% Completed
+              </span>
+            </div>
+            
+            <div class="overflow-x-auto pb-4 pt-1 -mx-2 px-2">
+              <div class="relative min-w-[360px] px-6">
+                <!-- Background Line connecting first and last nodes -->
+                <div class="absolute top-4 left-10 right-10 h-1.5 bg-slate-100 rounded-full z-0 overflow-hidden">
+                  <!-- Active Filled Line -->
+                  <div id="custProgressLine" class="h-full bg-blue-600 transition-all duration-700 rounded-full" style="width: 0%;"></div>
+                </div>
+                
+                <!-- Dynamic Nodes: Waiting -> Milestone 1 -> Milestone 2 ... -> Delivered -->
+                <div id="custProgressNodes" class="relative z-10 flex justify-between items-start gap-3">
+                  <!-- Dynamically rendered by updatePipelineProgressBar -->
+                </div>
+              </div>
+            </div>
+          </div>
 
-            const bgColors = {
-                success: 'bg-emerald-600 text-white',
-                error: 'bg-rose-600 text-white',
-                info: 'bg-slate-900 text-white'
-            };
+          <!-- Transit Route Details -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/70 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Shipped From</p>
+                <p id="custSenderName" class="text-sm font-bold text-slate-900">Pacific Distribution Center</p>
+                <p id="custOriginCity" class="text-xs text-slate-500">Seattle, WA, USA</p>
+              </div>
+            </div>
+            <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/70 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i data-lucide="map-pin" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Destination</p>
+                <p id="custReceiverName" class="text-sm font-bold text-slate-900">Jane Smith</p>
+                <p id="custDestCity" class="text-xs text-slate-500">New York, NY, USA</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            const icons = {
-                success: 'check-circle-2',
-                error: 'alert-circle',
-                info: 'info'
-            };
+        <!-- Milestone History Timeline Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h4 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                <i data-lucide="clock" class="w-5 h-5 text-blue-600"></i>
+                Milestone Activity Log
+              </h4>
+              <p class="text-xs text-slate-500">Official real-time updates provided by the logistics team.</p>
+            </div>
+            <button onclick="refreshCustomerData()" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Refresh data">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+          </div>
 
-            toast.className = `${bgColors[type] || bgColors.info} px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 text-xs font-medium pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0`;
-            toast.innerHTML = `
+          <!-- Vertical Timeline container -->
+          <div id="custMilestonesContainer" class="relative pl-6 sm:pl-8 border-l-2 border-slate-200 ml-4 space-y-8 my-4">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL 1: Create New Shipment -->
+  <div id="createShipmentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-150">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
+          Register New Shipment
+        </h3>
+        <button onclick="closeCreateShipmentModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="createShipmentForm" onsubmit="handleCreateShipmentSubmit(event)" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Tracking Code *</label>
+            <div class="relative">
+              <input type="text" id="newTrackingNumber" required placeholder="e.g. TRK-89210-US or custom code" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+              <button type="button" onclick="regenerateTrackingCode()" class="absolute right-2 top-2 text-slate-400 hover:text-blue-600" title="Suggest random code">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Carrier</label>
+            <input type="text" id="newCarrier" required value="SwiftExpress Logistics" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Sender / Merchant</label>
+            <input type="text" id="newSender" required placeholder="e.g. Apex Electronics Ltd" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Origin City & Country</label>
+            <input type="text" id="newOrigin" required placeholder="e.g. Chicago, IL, USA" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Recipient Name</label>
+            <input type="text" id="newRecipient" required placeholder="e.g. Alex Mercer" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Destination Address / City</label>
+            <input type="text" id="newDestination" required placeholder="e.g. Austin, TX, USA" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Estimated Delivery Date</label>
+            <input type="date" id="newEstDelivery" required class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Status / Phase *</label>
+            <input type="text" id="newInitialStatus" required placeholder="e.g. Order Placed, Dispatched, In Transit" value="Order Placed" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Initial Milestone Note</label>
+          <input type="text" id="newInitialNote" placeholder="e.g. Shipment label created and parcel awaiting carrier handover" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeCreateShipmentModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800">Cancel</button>
+          <button type="submit" id="submitShipmentBtn" class="px-5 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition inline-flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Register & Publish</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Firebase Cloud Configuration & Netlify Deployment Guide -->
+  <div id="configModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-150">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+            <i data-lucide="database" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Google Firebase Configuration</h3>
+            <p class="text-[11px] text-slate-500">Live storage across all devices, GitHub & Netlify</p>
+          </div>
+        </div>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="bg-blue-50/70 border border-blue-100 rounded-xl p-3 text-xs text-blue-800 space-y-1">
+        <p class="font-semibold flex items-center gap-1.5">
+          <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+          Quick 3-Minute Netlify Deployment
+        </p>
+        <p class="text-[11px] leading-relaxed text-blue-700">
+          1. Create a free project in <a href="https://console.firebase.google.com/" target="_blank" class="underline font-semibold">Firebase Console</a>.<br>
+          2. Enable <strong>Firestore Database</strong> (Start in Test Mode).<br>
+          3. Enable <strong>Authentication &rarr; Sign-in method &rarr; Anonymous</strong>.<br>
+          4. Copy your project config keys below. They are saved so when you push to GitHub & Netlify, your site stays live!
+        </p>
+      </div>
+
+      <form id="firebaseConfigForm" onsubmit="saveCustomFirebaseConfig(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 mb-1">API Key</label>
+          <input type="text" id="cfgApiKey" placeholder="AIzaSy..." class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Auth Domain</label>
+            <input type="text" id="cfgAuthDomain" placeholder="your-project.firebaseapp.com" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Project ID</label>
+            <input type="text" id="cfgProjectId" placeholder="your-project-id" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Storage Bucket</label>
+            <input type="text" id="cfgStorageBucket" placeholder="your-project.appspot.com" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Messaging Sender ID</label>
+            <input type="text" id="cfgSenderId" placeholder="1029384756" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 mb-1">App ID</label>
+          <input type="text" id="cfgAppId" placeholder="1:1029384756:web:abcd1234" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+          <button type="button" onclick="loadDefaultConfigSample()" class="text-xs text-slate-500 hover:text-slate-800 underline">
+            Reset to In-Memory Demo
+          </button>
+          <div class="flex gap-2">
+            <button type="button" onclick="closeConfigModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800">Close</button>
+            <button type="submit" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition">
+              Save & Connect
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- APPLICATION LOGIC & FIREBASE INITIALIZATION -->
+  <script type="module">
+    import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      doc, 
+      setDoc, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /* Global Context & Direct Firebase Configuration */
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'tmpltracking';
+
+    // Direct Firebase configuration provided for tmpltracking
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjd2CC-6o7mdxzyncVfOIm4fLp8COCgYg",
+      authDomain: "tmpltracking.firebaseapp.com",
+      projectId: "tmpltracking",
+      storageBucket: "tmpltracking.firebasestorage.app",
+      messagingSenderId: "653475249900",
+      appId: "1:653475249900:web:bfed22f9e14be3b2122fc9"
+    };
+
+    let activeFirebaseConfig = typeof __firebase_config !== 'undefined' 
+      ? JSON.parse(__firebase_config) 
+      : firebaseConfig;
+
+    let app = null;
+    let auth = null;
+    let db = null;
+    let unsubscribeShipments = null;
+    let currentUser = null;
+    let allShipments = [];
+    let selectedShipmentId = null;
+    let activeCustomerShipment = null;
+    let isCustomerLinkMode = false;
+    let targetTrackingCode = '';
+
+    // Safe clipboard copy helper for iframe and production domains
+    function copyToClipboardText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {
+        console.warn('Fallback copy error:', e);
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // Toast Alert Helper (Zero native browser alert calls)
+    window.showToast = function(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      const bgColors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        info: 'bg-slate-900 text-white'
+      };
+
+      const icons = {
+        success: 'check-circle-2',
+        error: 'alert-circle',
+        info: 'info'
+      };
+
+      toast.className = `${bgColors[type] || bgColors.info} px-4 py-3 rounded-xl shadow-lg flex items-center gap-2.5 text-xs font-medium pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0`;
+      toast.innerHTML = `
         <i data-lucide="${icons[type] || 'info'}" class="w-4 h-4"></i>
         <span>${message}</span>
       `;
-            container.appendChild(toast);
-            lucide.createIcons();
+      container.appendChild(toast);
+      lucide.createIcons();
 
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            });
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
 
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        };
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    };
 
-        // Initialize or re-initialize Firebase
-        async function initFirebaseService(configToUse) {
-            try {
-                if (unsubscribeShipments) {
-                    unsubscribeShipments();
-                    unsubscribeShipments = null;
-                }
-
-                if (app) {
-                    try { await deleteApp(app); } catch (e) { }
-                }
-
-                app = initializeApp(configToUse);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // Authenticate anonymously or via custom token
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    const userCred = await signInWithCustomToken(auth, __initial_auth_token);
-                    currentUser = userCred.user;
-                } else {
-                    const userCred = await signInAnonymously(auth);
-                    currentUser = userCred.user;
-                }
-
-                updateConnectionBadge(true);
-                setupShipmentsListener();
-            } catch (err) {
-                console.warn("Firebase live connect note:", err);
-                updateConnectionBadge(false);
-                // Fallback to demo in-memory store so UI remains 100% playable
-                seedInitialDemoData();
-            }
+    // Initialize or re-initialize Firebase
+    async function initFirebaseService(configToUse) {
+      try {
+        if (unsubscribeShipments) {
+          unsubscribeShipments();
+          unsubscribeShipments = null;
         }
 
-        function updateConnectionBadge(isConnected) {
-            const badge = document.getElementById('connectionBadge');
-            const cloudStatus = document.getElementById('cloudStatusBadge');
-            if (isConnected) {
-                if (badge) {
-                    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800";
-                    badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live Cloud Sync`;
-                }
-                if (cloudStatus) cloudStatus.innerText = "Cloud Online";
-            } else {
-                if (badge) {
-                    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800";
-                    badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Local Memory Mode`;
-                }
-                if (cloudStatus) cloudStatus.innerText = "Setup Cloud";
-            }
+        if (app) {
+          try { await deleteApp(app); } catch(e) {}
         }
 
-        function setupShipmentsListener() {
-            if (!currentUser || !db) return;
+        app = initializeApp(configToUse);
+        auth = getAuth(app);
+        db = getFirestore(app);
 
-            // RULE 1: Strict collection path /artifacts/{appId}/public/data/{collectionName}
-            const shipmentsCol = collection(db, 'artifacts', appId, 'public', 'data', 'shipments');
-
-            unsubscribeShipments = onSnapshot(shipmentsCol, (snapshot) => {
-                const list = [];
-                snapshot.forEach((docSnap) => {
-                    list.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
-                // RULE 2: Sort in JavaScript memory (avoid composite indexes requirement)
-                list.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-                allShipments = list;
-
-                if (allShipments.length === 0) {
-                    seedInitialDemoData();
-                    return;
-                }
-
-                renderShipmentsRegistry();
-                updateDashboardMetrics();
-
-                // Keep selected shipment workstation updated
-                if (selectedShipmentId) {
-                    const refreshed = allShipments.find(s => s.id === selectedShipmentId);
-                    if (refreshed) {
-                        renderShipmentWorkstation(refreshed);
-                    }
-                } else if (allShipments.length > 0) {
-                    selectShipment(allShipments[0].id);
-                }
-
-                // Live update active customer view if open
-                if (activeCustomerShipment) {
-                    const updatedCustShipment = allShipments.find(s => s.trackingNumber.toUpperCase() === activeCustomerShipment.trackingNumber.toUpperCase());
-                    if (updatedCustShipment) {
-                        renderCustomerTrackingView(updatedCustShipment);
-                    }
-                }
-            }, (error) => {
-                console.warn("Firestore onSnapshot error:", error);
-                updateConnectionBadge(false);
-            });
+        // Authenticate anonymously or via custom token
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          const userCred = await signInWithCustomToken(auth, __initial_auth_token);
+          currentUser = userCred.user;
+        } else {
+          const userCred = await signInAnonymously(auth);
+          currentUser = userCred.user;
         }
 
-        async function seedInitialDemoData() {
-            const sampleId = 'trk-89210-us';
-            const sampleShipment = {
-                trackingNumber: 'TRK-89210-US',
-                carrier: 'SwiftExpress Priority Freight',
-                senderName: 'Apex Robotics Inc.',
-                origin: 'San Francisco, CA, USA',
-                recipientName: 'Sarah Jenkins',
-                destination: 'Austin, TX, USA',
-                status: 'In Transit',
-                estimatedDelivery: 'Oct 04, 2026',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                milestones: [
-                    {
-                        id: 'm-1',
-                        title: 'Electronic Shipping Info Received',
-                        location: 'San Francisco, CA',
-                        timestamp: new Date(Date.now() - 3600000 * 48).toISOString(),
-                        statusTag: 'Created',
-                        notes: 'Shipping label created. Seller preparing dispatch packaging.'
-                    },
-                    {
-                        id: 'm-2',
-                        title: 'Package Picked Up by Courier',
-                        location: 'San Francisco Hub, CA',
-                        timestamp: new Date(Date.now() - 3600000 * 30).toISOString(),
-                        statusTag: 'Pickup',
-                        notes: 'Package collected and weighed at Bay Area logistics center.'
-                    },
-                    {
-                        id: 'm-3',
-                        title: 'Departed Facility - Flight En Route',
-                        location: 'Denver Logistics Center, CO',
-                        timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
-                        statusTag: 'En Route',
-                        notes: 'Container loaded onto cargo transport headed for Southwest hub.'
-                    }
-                ]
-            };
+        updateConnectionBadge(true);
+        setupShipmentsListener();
+      } catch (err) {
+        console.warn("Firebase live connect note:", err);
+        updateConnectionBadge(false);
+        // Fallback to demo in-memory store so UI remains 100% playable
+        seedInitialDemoData();
+      }
+    }
 
-            try {
-                if (db && currentUser) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', sampleId);
-                    await setDoc(docRef, sampleShipment);
-                } else {
-                    throw new Error("No active Firebase connection");
-                }
-            } catch (e) {
-                allShipments = [{ id: sampleId, ...sampleShipment }];
-                renderShipmentsRegistry();
-                updateDashboardMetrics();
-                selectShipment(sampleId);
-            }
+    function updateConnectionBadge(isConnected) {
+      const badge = document.getElementById('connectionBadge');
+      const cloudStatus = document.getElementById('cloudStatusBadge');
+      if (isConnected) {
+        if (badge) {
+          badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live Cloud Sync`;
+        }
+        if (cloudStatus) cloudStatus.innerText = "Cloud Online";
+      } else {
+        if (badge) {
+          badge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800";
+          badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Local Memory Mode`;
+        }
+        if (cloudStatus) cloudStatus.innerText = "Setup Cloud";
+      }
+    }
+
+    function setupShipmentsListener() {
+      if (!currentUser || !db) return;
+
+      // RULE 1: Strict collection path /artifacts/{appId}/public/data/{collectionName}
+      const shipmentsCol = collection(db, 'artifacts', appId, 'public', 'data', 'shipments');
+
+      unsubscribeShipments = onSnapshot(shipmentsCol, (snapshot) => {
+        const list = [];
+        snapshot.forEach((docSnap) => {
+          list.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        // RULE 2: Sort in JavaScript memory (avoid composite indexes requirement)
+        list.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+        allShipments = list;
+
+        if (allShipments.length === 0) {
+          seedInitialDemoData();
+          return;
         }
 
-        function generateTrackingNumber() {
-            const randomDigits = Math.floor(100000 + Math.random() * 900000);
-            return `TRK-${randomDigits}-US`;
+        renderShipmentsRegistry();
+        updateDashboardMetrics();
+
+        // Keep selected shipment workstation updated
+        if (selectedShipmentId) {
+          const refreshed = allShipments.find(s => s.id === selectedShipmentId);
+          if (refreshed) {
+            renderShipmentWorkstation(refreshed);
+          }
+        } else if (allShipments.length > 0) {
+          selectShipment(allShipments[0].id);
         }
 
-        window.regenerateTrackingCode = function () {
-            document.getElementById('newTrackingNumber').value = generateTrackingNumber();
-        };
-
-        function updateDashboardMetrics() {
-            document.getElementById('statTotal').innerText = allShipments.length;
-            document.getElementById('statInTransit').innerText = allShipments.filter(s => {
-                const st = (s.status || '').toLowerCase();
-                return st.includes('transit') || st.includes('route') || st.includes('courier');
-            }).length;
-            document.getElementById('statDelivered').innerText = allShipments.filter(s => (s.status || '').toLowerCase().includes('delivered')).length;
-            document.getElementById('statPending').innerText = allShipments.filter(s => {
-                const st = (s.status || '').toLowerCase();
-                return st.includes('exception') || st.includes('hold') || st.includes('delay') || st.includes('placed');
-            }).length;
+        // Live update active customer view if open
+        if (activeCustomerShipment) {
+          const updatedCustShipment = allShipments.find(s => s.trackingNumber.toUpperCase() === activeCustomerShipment.trackingNumber.toUpperCase());
+          if (updatedCustShipment) {
+            renderCustomerTrackingView(updatedCustShipment);
+          }
         }
 
-        function renderShipmentsRegistry(filterQuery = '') {
-            const container = document.getElementById('shipmentsListContainer');
-            const filtered = allShipments.filter(s => {
-                const query = filterQuery.toLowerCase();
-                return (
-                    (s.trackingNumber || '').toLowerCase().includes(query) ||
-                    (s.recipientName || '').toLowerCase().includes(query) ||
-                    (s.senderName || '').toLowerCase().includes(query) ||
-                    (s.destination || '').toLowerCase().includes(query) ||
-                    (s.status || '').toLowerCase().includes(query)
-                );
-            });
+        // If accessed through direct link, auto-render only that package
+        if (isCustomerLinkMode && targetTrackingCode) {
+          window.handleCustomerSearchSubmit();
+        }
+      }, (error) => {
+        console.warn("Firestore onSnapshot error:", error);
+        updateConnectionBadge(false);
+      });
+    }
 
-            if (filtered.length === 0) {
-                container.innerHTML = `
+    async function seedInitialDemoData() {
+      const sampleId = 'trk-89210-us';
+      const sampleShipment = {
+        trackingNumber: 'TRK-89210-US',
+        carrier: 'SwiftExpress Priority Freight',
+        senderName: 'Apex Robotics Inc.',
+        origin: 'San Francisco, CA, USA',
+        recipientName: 'Sarah Jenkins',
+        destination: 'Austin, TX, USA',
+        status: 'In Transit',
+        estimatedDelivery: 'Oct 04, 2026',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        milestones: [
+          {
+            id: 'm-1',
+            title: 'Electronic Shipping Info Received',
+            location: 'San Francisco, CA',
+            timestamp: new Date(Date.now() - 3600000 * 48).toISOString(),
+            statusTag: 'Created',
+            notes: 'Shipping label created. Seller preparing dispatch packaging.'
+          },
+          {
+            id: 'm-2',
+            title: 'Package Picked Up by Courier',
+            location: 'San Francisco Hub, CA',
+            timestamp: new Date(Date.now() - 3600000 * 30).toISOString(),
+            statusTag: 'Pickup',
+            notes: 'Package collected and weighed at Bay Area logistics center.'
+          },
+          {
+            id: 'm-3',
+            title: 'Departed Facility - Flight En Route',
+            location: 'Denver Logistics Center, CO',
+            timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
+            statusTag: 'En Route',
+            notes: 'Container loaded onto cargo transport headed for Southwest hub.'
+          }
+        ]
+      };
+
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', sampleId);
+          await setDoc(docRef, sampleShipment);
+        } else {
+          throw new Error("No active Firebase connection");
+        }
+      } catch (e) {
+        allShipments = [ { id: sampleId, ...sampleShipment } ];
+        renderShipmentsRegistry();
+        updateDashboardMetrics();
+        selectShipment(sampleId);
+      }
+    }
+
+    function generateTrackingNumber() {
+      const randomDigits = Math.floor(100000 + Math.random() * 900000);
+      return `TRK-${randomDigits}-US`;
+    }
+
+    window.regenerateTrackingCode = function() {
+      document.getElementById('newTrackingNumber').value = generateTrackingNumber();
+    };
+
+    function updateDashboardMetrics() {
+      document.getElementById('statTotal').innerText = allShipments.length;
+      document.getElementById('statInTransit').innerText = allShipments.filter(s => {
+        const st = (s.status || '').toLowerCase();
+        return st.includes('transit') || st.includes('route') || st.includes('courier');
+      }).length;
+      document.getElementById('statDelivered').innerText = allShipments.filter(s => (s.status || '').toLowerCase().includes('delivered')).length;
+      document.getElementById('statPending').innerText = allShipments.filter(s => {
+        const st = (s.status || '').toLowerCase();
+        return st.includes('exception') || st.includes('hold') || st.includes('delay') || st.includes('placed');
+      }).length;
+    }
+
+    function renderShipmentsRegistry(filterQuery = '') {
+      const container = document.getElementById('shipmentsListContainer');
+      const filtered = allShipments.filter(s => {
+        const query = filterQuery.toLowerCase();
+        return (
+          (s.trackingNumber || '').toLowerCase().includes(query) ||
+          (s.recipientName || '').toLowerCase().includes(query) ||
+          (s.senderName || '').toLowerCase().includes(query) ||
+          (s.destination || '').toLowerCase().includes(query) ||
+          (s.status || '').toLowerCase().includes(query)
+        );
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
           <div class="p-8 text-center text-slate-400 text-xs">
             <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-60"></i>
             No shipments match your criteria.
           </div>
         `;
-                lucide.createIcons();
-                return;
-            }
+        lucide.createIcons();
+        return;
+      }
 
-            container.innerHTML = filtered.map(shipment => {
-                const isSelected = shipment.id === selectedShipmentId;
-                const statusColors = getStatusBadgeStyle(shipment.status);
-                const milestoneCount = shipment.milestones ? shipment.milestones.length : 0;
+      container.innerHTML = filtered.map(shipment => {
+        const isSelected = shipment.id === selectedShipmentId;
+        const statusColors = getStatusBadgeStyle(shipment.status);
+        const milestoneCount = shipment.milestones ? shipment.milestones.length : 0;
 
-                return `
+        return `
           <div onclick="selectShipment('${shipment.id}')" 
             class="p-4 cursor-pointer transition-all duration-150 hover:bg-slate-50 ${isSelected ? 'bg-blue-50/70 border-l-4 border-blue-600' : ''}">
             <div class="flex items-center justify-between">
@@ -1049,70 +942,70 @@
             </div>
           </div>
         `;
-            }).join('');
+      }).join('');
 
-            lucide.createIcons();
-        }
+      lucide.createIcons();
+    }
 
-        window.handleShipmentFilter = function () {
-            const query = document.getElementById('shipmentSearchInput').value;
-            renderShipmentsRegistry(query);
-        };
+    window.handleShipmentFilter = function() {
+      const query = document.getElementById('shipmentSearchInput').value;
+      renderShipmentsRegistry(query);
+    };
 
-        window.selectShipment = function (id) {
-            selectedShipmentId = id;
-            const shipment = allShipments.find(s => s.id === id);
-            if (!shipment) return;
+    window.selectShipment = function(id) {
+      selectedShipmentId = id;
+      const shipment = allShipments.find(s => s.id === id);
+      if (!shipment) return;
 
-            renderShipmentsRegistry(document.getElementById('shipmentSearchInput')?.value || '');
-            renderShipmentWorkstation(shipment);
-        };
+      renderShipmentsRegistry(document.getElementById('shipmentSearchInput')?.value || '');
+      renderShipmentWorkstation(shipment);
+    };
 
-        function renderShipmentWorkstation(shipment) {
-            document.getElementById('shipmentDetailEmptyState').classList.add('hidden');
-            const workstation = document.getElementById('shipmentDetailWorkstation');
-            workstation.classList.remove('hidden');
+    function renderShipmentWorkstation(shipment) {
+      document.getElementById('shipmentDetailEmptyState').classList.add('hidden');
+      const workstation = document.getElementById('shipmentDetailWorkstation');
+      workstation.classList.remove('hidden');
 
-            document.getElementById('detailTrackingNumber').innerText = shipment.trackingNumber;
+      document.getElementById('detailTrackingNumber').innerText = shipment.trackingNumber;
+      
+      const badge = document.getElementById('detailStatusBadge');
+      const badgeStyle = getStatusBadgeStyle(shipment.status);
+      badge.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${badgeStyle.bg} ${badgeStyle.text}`;
+      badge.innerText = shipment.status;
 
-            const badge = document.getElementById('detailStatusBadge');
-            const badgeStyle = getStatusBadgeStyle(shipment.status);
-            badge.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${badgeStyle.bg} ${badgeStyle.text}`;
-            badge.innerText = shipment.status;
+      document.getElementById('detailCarrierInfo').innerHTML = `Carrier: <strong>${shipment.carrier}</strong> &bull; Est. Delivery: <strong>${shipment.estimatedDelivery}</strong>`;
+      document.getElementById('detailSender').innerText = shipment.senderName;
+      document.getElementById('detailOrigin').innerText = shipment.origin;
+      document.getElementById('detailRecipient').innerText = shipment.recipientName;
+      document.getElementById('detailDestination').innerText = shipment.destination;
 
-            document.getElementById('detailCarrierInfo').innerHTML = `Carrier: <strong>${shipment.carrier}</strong> &bull; Est. Delivery: <strong>${shipment.estimatedDelivery}</strong>`;
-            document.getElementById('detailSender').innerText = shipment.senderName;
-            document.getElementById('detailOrigin').innerText = shipment.origin;
-            document.getElementById('detailRecipient').innerText = shipment.recipientName;
-            document.getElementById('detailDestination').innerText = shipment.destination;
+      // Status selector manual value
+      const statusSelect = document.getElementById('detailStatusSelect');
+      statusSelect.value = shipment.status;
 
-            // Status selector manual value
-            const statusSelect = document.getElementById('detailStatusSelect');
-            statusSelect.value = shipment.status;
+      // Render milestones timeline in staff workstation
+      renderStaffMilestones(shipment.milestones || []);
+    }
 
-            // Render milestones timeline in staff workstation
-            renderStaffMilestones(shipment.milestones || []);
-        }
+    function renderStaffMilestones(milestones) {
+      const container = document.getElementById('staffMilestonesTimeline');
+      const sorted = [...milestones].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-        function renderStaffMilestones(milestones) {
-            const container = document.getElementById('staffMilestonesTimeline');
-            const sorted = [...milestones].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            if (sorted.length === 0) {
-                container.innerHTML = `
+      if (sorted.length === 0) {
+        container.innerHTML = `
           <div class="text-center py-6 border border-dashed border-slate-200 rounded-xl">
             <p class="text-xs text-slate-400">No milestones registered yet. Click "Add New Milestone" above.</p>
           </div>
         `;
-                return;
-            }
+        return;
+      }
 
-            container.innerHTML = sorted.map((m, index) => {
-                const dateObj = new Date(m.timestamp);
-                const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      container.innerHTML = sorted.map((m, index) => {
+        const dateObj = new Date(m.timestamp);
+        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-                return `
+        return `
           <div class="relative pl-6 pb-4 border-l-2 ${index === sorted.length - 1 ? 'border-transparent' : 'border-slate-200'}">
             <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-600 ring-4 ring-white flex items-center justify-center text-white text-[9px]">
               <i data-lucide="check" class="w-2.5 h-2.5"></i>
@@ -1139,339 +1032,341 @@
             </div>
           </div>
         `;
-            }).join('');
+      }).join('');
 
-            lucide.createIcons();
+      lucide.createIcons();
+    }
+
+    window.toggleAddMilestoneForm = function() {
+      const section = document.getElementById('addMilestoneFormSection');
+      const isHidden = section.classList.contains('hidden');
+      if (isHidden) {
+        section.classList.remove('hidden');
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('mEventDateTime').value = now.toISOString().slice(0, 16);
+      } else {
+        section.classList.add('hidden');
+      }
+    };
+
+    window.handleCreateMilestone = async function(e) {
+      e.preventDefault();
+      if (!selectedShipmentId) return;
+
+      const title = document.getElementById('mEventTitle').value.trim();
+      const location = document.getElementById('mEventLocation').value.trim();
+      const dateTime = document.getElementById('mEventDateTime').value;
+      const statusTag = document.getElementById('mEventStatusTag').value.trim();
+      const notes = document.getElementById('mEventNotes').value.trim();
+
+      const newMilestone = {
+        id: 'm-' + Date.now(),
+        title,
+        location,
+        timestamp: new Date(dateTime).toISOString(),
+        statusTag,
+        notes
+      };
+
+      const shipment = allShipments.find(s => s.id === selectedShipmentId);
+      if (!shipment) return;
+
+      const updatedMilestones = [...(shipment.milestones || []), newMilestone];
+
+      let newOverallStatus = shipment.status;
+      if (statusTag.toLowerCase().includes('delivered')) newOverallStatus = 'Delivered';
+      else if (statusTag.toLowerCase().includes('out for delivery')) newOverallStatus = 'Out for Delivery';
+
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', selectedShipmentId);
+          await setDoc(docRef, {
+            ...shipment,
+            status: newOverallStatus,
+            milestones: updatedMilestones,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } else {
+          shipment.milestones = updatedMilestones;
+          shipment.status = newOverallStatus;
+          renderShipmentWorkstation(shipment);
+          updateDashboardMetrics();
         }
 
-        window.toggleAddMilestoneForm = function () {
-            const section = document.getElementById('addMilestoneFormSection');
-            const isHidden = section.classList.contains('hidden');
-            if (isHidden) {
-                section.classList.remove('hidden');
-                const now = new Date();
-                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                document.getElementById('mEventDateTime').value = now.toISOString().slice(0, 16);
-            } else {
-                section.classList.add('hidden');
-            }
-        };
+        showToast("Milestone successfully published!", "success");
+        document.getElementById('newMilestoneForm').reset();
+        window.toggleAddMilestoneForm();
+      } catch (err) {
+        console.error("Save milestone error:", err);
+        shipment.milestones = updatedMilestones;
+        shipment.status = newOverallStatus;
+        renderShipmentWorkstation(shipment);
+        showToast("Saved locally", "info");
+      }
+    };
 
-        window.handleCreateMilestone = async function (e) {
-            e.preventDefault();
-            if (!selectedShipmentId) return;
+    window.deleteMilestone = async function(milestoneId) {
+      if (!selectedShipmentId) return;
+      const shipment = allShipments.find(s => s.id === selectedShipmentId);
+      if (!shipment) return;
 
-            const title = document.getElementById('mEventTitle').value.trim();
-            const location = document.getElementById('mEventLocation').value.trim();
-            const dateTime = document.getElementById('mEventDateTime').value;
-            const statusTag = document.getElementById('mEventStatusTag').value.trim();
-            const notes = document.getElementById('mEventNotes').value.trim();
+      const filtered = (shipment.milestones || []).filter(m => m.id !== milestoneId);
 
-            const newMilestone = {
-                id: 'm-' + Date.now(),
-                title,
-                location,
-                timestamp: new Date(dateTime).toISOString(),
-                statusTag,
-                notes
-            };
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', selectedShipmentId);
+          await setDoc(docRef, {
+            milestones: filtered,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } else {
+          shipment.milestones = filtered;
+          renderShipmentWorkstation(shipment);
+        }
+        showToast("Milestone removed", "info");
+      } catch (err) {
+        console.error("Delete milestone error:", err);
+        shipment.milestones = filtered;
+        renderShipmentWorkstation(shipment);
+      }
+    };
 
-            const shipment = allShipments.find(s => s.id === selectedShipmentId);
-            if (!shipment) return;
+    window.handleUpdateShipmentStatus = async function() {
+      if (!selectedShipmentId) return;
+      const newStatus = document.getElementById('detailStatusSelect').value;
+      const shipment = allShipments.find(s => s.id === selectedShipmentId);
+      if (!shipment) return;
 
-            const updatedMilestones = [...(shipment.milestones || []), newMilestone];
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', selectedShipmentId);
+          await setDoc(docRef, {
+            status: newStatus,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } else {
+          shipment.status = newStatus;
+          renderShipmentWorkstation(shipment);
+          updateDashboardMetrics();
+        }
+        showToast(`Status updated to "${newStatus}"`, "success");
+      } catch (err) {
+        console.error("Status update error:", err);
+        shipment.status = newStatus;
+        renderShipmentWorkstation(shipment);
+      }
+    };
 
-            let newOverallStatus = shipment.status;
-            if (statusTag.toLowerCase().includes('delivered')) newOverallStatus = 'Delivered';
-            else if (statusTag.toLowerCase().includes('out for delivery')) newOverallStatus = 'Out for Delivery';
+    window.openCreateShipmentModal = function() {
+      const trackingInput = document.getElementById('newTrackingNumber');
+      if (!trackingInput.value) {
+        regenerateTrackingCode();
+      }
+      document.getElementById('createShipmentModal').classList.remove('hidden');
+    };
 
-            try {
-                if (db && currentUser) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', selectedShipmentId);
-                    await setDoc(docRef, {
-                        ...shipment,
-                        status: newOverallStatus,
-                        milestones: updatedMilestones,
-                        updatedAt: new Date().toISOString()
-                    }, { merge: true });
-                } else {
-                    shipment.milestones = updatedMilestones;
-                    shipment.status = newOverallStatus;
-                    renderShipmentWorkstation(shipment);
-                    updateDashboardMetrics();
-                }
+    window.closeCreateShipmentModal = function() {
+      document.getElementById('createShipmentModal').classList.add('hidden');
+    };
 
-                showToast("Milestone successfully published!", "success");
-                document.getElementById('newMilestoneForm').reset();
-                window.toggleAddMilestoneForm();
-            } catch (err) {
-                console.error("Save milestone error:", err);
-                shipment.milestones = updatedMilestones;
-                shipment.status = newOverallStatus;
-                renderShipmentWorkstation(shipment);
-                showToast("Saved locally", "info");
-            }
-        };
+    window.handleCreateShipmentSubmit = async function(e) {
+      e.preventDefault();
+      const trackingNumber = document.getElementById('newTrackingNumber').value.trim();
+      const carrier = document.getElementById('newCarrier').value.trim();
+      const senderName = document.getElementById('newSender').value.trim();
+      const origin = document.getElementById('newOrigin').value.trim();
+      const recipientName = document.getElementById('newRecipient').value.trim();
+      const destination = document.getElementById('newDestination').value.trim();
+      const estDelivery = document.getElementById('newEstDelivery').value;
+      const status = document.getElementById('newInitialStatus').value.trim();
+      const initialNote = document.getElementById('newInitialNote').value.trim() || 'Shipment record created';
 
-        window.deleteMilestone = async function (milestoneId) {
-            if (!selectedShipmentId) return;
-            const shipment = allShipments.find(s => s.id === selectedShipmentId);
-            if (!shipment) return;
+      const shipmentDocId = trackingNumber.toLowerCase();
 
-            const filtered = (shipment.milestones || []).filter(m => m.id !== milestoneId);
+      const initialMilestone = {
+        id: 'm-' + Date.now(),
+        title: 'Shipment Created',
+        location: origin,
+        timestamp: new Date().toISOString(),
+        statusTag: 'Created',
+        notes: initialNote
+      };
 
-            try {
-                if (db && currentUser) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', selectedShipmentId);
-                    await setDoc(docRef, {
-                        milestones: filtered,
-                        updatedAt: new Date().toISOString()
-                    }, { merge: true });
-                } else {
-                    shipment.milestones = filtered;
-                    renderShipmentWorkstation(shipment);
-                }
-                showToast("Milestone removed", "info");
-            } catch (err) {
-                console.error("Delete milestone error:", err);
-                shipment.milestones = filtered;
-                renderShipmentWorkstation(shipment);
-            }
-        };
+      const newRecord = {
+        trackingNumber,
+        carrier,
+        senderName,
+        origin,
+        recipientName,
+        destination,
+        estimatedDelivery: estDelivery,
+        status,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        milestones: [initialMilestone]
+      };
 
-        window.handleUpdateShipmentStatus = async function () {
-            if (!selectedShipmentId) return;
-            const newStatus = document.getElementById('detailStatusSelect').value;
-            const shipment = allShipments.find(s => s.id === selectedShipmentId);
-            if (!shipment) return;
-
-            try {
-                if (db && currentUser) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', selectedShipmentId);
-                    await setDoc(docRef, {
-                        status: newStatus,
-                        updatedAt: new Date().toISOString()
-                    }, { merge: true });
-                } else {
-                    shipment.status = newStatus;
-                    renderShipmentWorkstation(shipment);
-                    updateDashboardMetrics();
-                }
-                showToast(`Status updated to "${newStatus}"`, "success");
-            } catch (err) {
-                console.error("Status update error:", err);
-                shipment.status = newStatus;
-                renderShipmentWorkstation(shipment);
-            }
-        };
-
-        window.openCreateShipmentModal = function () {
-            const trackingInput = document.getElementById('newTrackingNumber');
-            if (!trackingInput.value) {
-                regenerateTrackingCode();
-            }
-            document.getElementById('createShipmentModal').classList.remove('hidden');
-        };
-
-        window.closeCreateShipmentModal = function () {
-            document.getElementById('createShipmentModal').classList.add('hidden');
-        };
-
-        window.handleCreateShipmentSubmit = async function (e) {
-            e.preventDefault();
-            const trackingNumber = document.getElementById('newTrackingNumber').value.trim();
-            const carrier = document.getElementById('newCarrier').value.trim();
-            const senderName = document.getElementById('newSender').value.trim();
-            const origin = document.getElementById('newOrigin').value.trim();
-            const recipientName = document.getElementById('newRecipient').value.trim();
-            const destination = document.getElementById('newDestination').value.trim();
-            const estDelivery = document.getElementById('newEstDelivery').value;
-            const status = document.getElementById('newInitialStatus').value.trim();
-            const initialNote = document.getElementById('newInitialNote').value.trim() || 'Shipment record created';
-
-            const shipmentDocId = trackingNumber.toLowerCase();
-
-            const initialMilestone = {
-                id: 'm-' + Date.now(),
-                title: 'Shipment Created',
-                location: origin,
-                timestamp: new Date().toISOString(),
-                statusTag: 'Created',
-                notes: initialNote
-            };
-
-            const newRecord = {
-                trackingNumber,
-                carrier,
-                senderName,
-                origin,
-                recipientName,
-                destination,
-                estimatedDelivery: estDelivery,
-                status,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                milestones: [initialMilestone]
-            };
-
-            try {
-                if (db && currentUser) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', shipmentDocId);
-                    await setDoc(docRef, newRecord);
-                } else {
-                    allShipments.unshift({ id: shipmentDocId, ...newRecord });
-                    renderShipmentsRegistry();
-                    updateDashboardMetrics();
-                    selectShipment(shipmentDocId);
-                }
-
-                closeCreateShipmentModal();
-                showToast(`Shipment ${trackingNumber} created & stored in cloud!`, "success");
-                selectShipment(shipmentDocId);
-            } catch (err) {
-                console.error("Create shipment error:", err);
-                allShipments.unshift({ id: shipmentDocId, ...newRecord });
-                renderShipmentsRegistry();
-                updateDashboardMetrics();
-                selectShipment(shipmentDocId);
-                closeCreateShipmentModal();
-                showToast("Created locally.", "info");
-            }
-        };
-
-        window.handleCustomerSearchSubmit = function (e) {
-            if (e) e.preventDefault();
-            const query = document.getElementById('customerSearchInput').value.trim().toUpperCase();
-            if (!query) return;
-
-            const found = allShipments.find(s => s.trackingNumber.toUpperCase() === query);
-            if (found) {
-                activeCustomerShipment = found;
-                renderCustomerTrackingView(found);
-                window.location.hash = `track=${encodeURIComponent(found.trackingNumber)}`;
-            } else {
-                document.getElementById('customerActiveCard').classList.add('hidden');
-                const notFound = document.getElementById('customerNotFoundState');
-                notFound.classList.remove('hidden');
-                document.getElementById('customerNotFoundMsg').innerText = `No shipment found matching tracking number "${query}". Please check the code and try again.`;
-            }
-        };
-
-        function renderCustomerTrackingView(shipment) {
-            document.getElementById('customerNotFoundState').classList.add('hidden');
-            const activeCard = document.getElementById('customerActiveCard');
-            activeCard.classList.remove('hidden');
-
-            document.getElementById('custTrackingNum').innerText = shipment.trackingNumber;
-            document.getElementById('custCarrierText').innerText = `Carrier: ${shipment.carrier}`;
-            document.getElementById('custEstimatedDelivery').innerText = shipment.estimatedDelivery;
-            document.getElementById('custStatusText').innerText = shipment.status;
-
-            const pill = document.getElementById('custStatusPill');
-            const statusStyle = getStatusBadgeStyle(shipment.status);
-            pill.className = `mt-1 px-3 py-1 rounded-full text-xs font-semibold ${statusStyle.bg} ${statusStyle.text} inline-flex items-center gap-1.5`;
-
-            document.getElementById('custSenderName').innerText = shipment.senderName;
-            document.getElementById('custOriginCity').innerText = shipment.origin;
-            document.getElementById('custReceiverName').innerText = shipment.recipientName;
-            document.getElementById('custDestCity').innerText = shipment.destination;
-
-            updatePipelineProgressBar(shipment);
-            renderCustomerMilestones(shipment.milestones || []);
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', shipmentDocId);
+          await setDoc(docRef, newRecord);
+        } else {
+          allShipments.unshift({ id: shipmentDocId, ...newRecord });
+          renderShipmentsRegistry();
+          updateDashboardMetrics();
+          selectShipment(shipmentDocId);
         }
 
-        // Dynamic Milestone Pipeline: Waiting -> Milestone 1 -> Milestone 2 ... -> Delivered
-        function updatePipelineProgressBar(shipment) {
-            const container = document.getElementById('custProgressNodes');
-            const progressLine = document.getElementById('custProgressLine');
-            const percentLabel = document.getElementById('custProgressPercentLabel');
-            if (!container) return;
+        closeCreateShipmentModal();
+        showToast(`Shipment ${trackingNumber} created & stored in cloud!`, "success");
+        selectShipment(shipmentDocId);
+      } catch (err) {
+        console.error("Create shipment error:", err);
+        allShipments.unshift({ id: shipmentDocId, ...newRecord });
+        renderShipmentsRegistry();
+        updateDashboardMetrics();
+        selectShipment(shipmentDocId);
+        closeCreateShipmentModal();
+        showToast("Created locally.", "info");
+      }
+    };
 
-            const milestones = shipment.milestones ? [...shipment.milestones] : [];
-            milestones.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    window.handleCustomerSearchSubmit = function(e) {
+      if (e) e.preventDefault();
+      const query = (document.getElementById('customerSearchInput').value.trim() || targetTrackingCode).toUpperCase();
+      if (!query) return;
 
-            const isDelivered = (shipment.status || '').toLowerCase().includes('delivered');
+      const found = allShipments.find(s => s.trackingNumber.toUpperCase() === query);
+      if (found) {
+        activeCustomerShipment = found;
+        renderCustomerTrackingView(found);
+        if (!isCustomerLinkMode) {
+          window.location.hash = `track=${encodeURIComponent(found.trackingNumber)}`;
+        }
+      } else {
+        document.getElementById('customerActiveCard').classList.add('hidden');
+        const notFound = document.getElementById('customerNotFoundState');
+        notFound.classList.remove('hidden');
+        document.getElementById('customerNotFoundMsg').innerText = `No shipment found matching tracking number "${query}". Please check the code and try again.`;
+      }
+    };
 
-            const stages = [
-                {
-                    key: 'waiting',
-                    badge: 'Start',
-                    title: 'Waiting',
-                    sub: 'Shipment Created',
-                    isDeliveredNode: false
-                }
-            ];
+    function renderCustomerTrackingView(shipment) {
+      document.getElementById('customerNotFoundState').classList.add('hidden');
+      const activeCard = document.getElementById('customerActiveCard');
+      activeCard.classList.remove('hidden');
 
-            milestones.forEach((m, idx) => {
-                stages.push({
-                    key: `m-${m.id || idx}`,
-                    badge: `Milestone ${idx + 1}`,
-                    title: m.title || `Milestone ${idx + 1}`,
-                    sub: m.location || m.statusTag || '',
-                    isDeliveredNode: false
-                });
-            });
+      document.getElementById('custTrackingNum').innerText = shipment.trackingNumber;
+      document.getElementById('custCarrierText').innerText = `Carrier: ${shipment.carrier}`;
+      document.getElementById('custEstimatedDelivery').innerText = shipment.estimatedDelivery;
+      document.getElementById('custStatusText').innerText = shipment.status;
 
-            stages.push({
-                key: 'delivered',
-                badge: 'Final Goal',
-                title: 'Delivered',
-                sub: shipment.destination || 'Destination',
-                isDeliveredNode: true
-            });
+      const pill = document.getElementById('custStatusPill');
+      const statusStyle = getStatusBadgeStyle(shipment.status);
+      pill.className = `mt-1 px-3 py-1 rounded-full text-xs font-semibold ${statusStyle.bg} ${statusStyle.text} inline-flex items-center gap-1.5`;
 
-            const totalStages = stages.length;
-            const activeIdx = isDelivered ? totalStages - 1 : milestones.length;
-            const percent = totalStages > 1 ? Math.min(100, Math.round((activeIdx / (totalStages - 1)) * 100)) : 0;
+      document.getElementById('custSenderName').innerText = shipment.senderName;
+      document.getElementById('custOriginCity').innerText = shipment.origin;
+      document.getElementById('custReceiverName').innerText = shipment.recipientName;
+      document.getElementById('custDestCity').innerText = shipment.destination;
 
-            if (progressLine) {
-                progressLine.style.width = `${percent}%`;
-                progressLine.className = isDelivered
-                    ? "h-full bg-emerald-600 transition-all duration-700 rounded-full"
-                    : "h-full bg-blue-600 transition-all duration-700 rounded-full";
-            }
+      updatePipelineProgressBar(shipment);
+      renderCustomerMilestones(shipment.milestones || []);
+    }
 
-            if (percentLabel) {
-                percentLabel.innerText = `${percent}% Completed`;
-                percentLabel.className = isDelivered
-                    ? "text-xs font-bold text-emerald-700 font-mono bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200"
-                    : "text-xs font-bold text-blue-600 font-mono bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100";
-            }
+    // Dynamic Milestone Pipeline: Waiting -> Milestone 1 -> Milestone 2 ... -> Delivered
+    function updatePipelineProgressBar(shipment) {
+      const container = document.getElementById('custProgressNodes');
+      const progressLine = document.getElementById('custProgressLine');
+      const percentLabel = document.getElementById('custProgressPercentLabel');
+      if (!container) return;
 
-            container.innerHTML = stages.map((stage, idx) => {
-                const isCompleted = idx <= activeIdx;
-                const isCurrent = idx === activeIdx;
+      const milestones = shipment.milestones ? [...shipment.milestones] : [];
+      milestones.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-                let iconName = 'check';
-                if (idx === 0) {
-                    iconName = isCompleted ? 'check' : 'clock';
-                } else if (stage.isDeliveredNode) {
-                    iconName = isCompleted ? 'check-circle-2' : 'home';
-                } else {
-                    iconName = isCompleted ? 'check' : 'map-pin';
-                }
+      const isDelivered = (shipment.status || '').toLowerCase().includes('delivered');
 
-                let circleClasses = 'bg-slate-100 text-slate-400 ring-4 ring-white border border-slate-300';
-                let textClasses = 'text-slate-400 font-medium';
-                let badgeClasses = 'bg-slate-100 text-slate-500';
+      const stages = [
+        {
+          key: 'waiting',
+          badge: 'Start',
+          title: 'Waiting',
+          sub: 'Shipment Created',
+          isDeliveredNode: false
+        }
+      ];
 
-                if (isCompleted) {
-                    if (stage.isDeliveredNode) {
-                        circleClasses = 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20 ring-4 ring-emerald-100';
-                        textClasses = 'text-emerald-700 font-bold';
-                        badgeClasses = 'bg-emerald-100 text-emerald-800 font-bold';
-                    } else if (isCurrent && !isDelivered) {
-                        circleClasses = 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-100 pulse-dot';
-                        textClasses = 'text-blue-700 font-bold';
-                        badgeClasses = 'bg-blue-100 text-blue-800 font-bold';
-                    } else {
-                        circleClasses = 'bg-blue-600 text-white shadow-sm ring-4 ring-white';
-                        textClasses = 'text-slate-800 font-semibold';
-                        badgeClasses = 'bg-slate-100 text-slate-700 font-semibold';
-                    }
-                }
+      milestones.forEach((m, idx) => {
+        stages.push({
+          key: `m-${m.id || idx}`,
+          badge: `Milestone ${idx + 1}`,
+          title: m.title || `Milestone ${idx + 1}`,
+          sub: m.location || m.statusTag || '',
+          isDeliveredNode: false
+        });
+      });
 
-                return `
+      stages.push({
+        key: 'delivered',
+        badge: 'Final Goal',
+        title: 'Delivered',
+        sub: shipment.destination || 'Destination',
+        isDeliveredNode: true
+      });
+
+      const totalStages = stages.length;
+      const activeIdx = isDelivered ? totalStages - 1 : milestones.length;
+      const percent = totalStages > 1 ? Math.min(100, Math.round((activeIdx / (totalStages - 1)) * 100)) : 0;
+
+      if (progressLine) {
+        progressLine.style.width = `${percent}%`;
+        progressLine.className = isDelivered 
+          ? "h-full bg-emerald-600 transition-all duration-700 rounded-full" 
+          : "h-full bg-blue-600 transition-all duration-700 rounded-full";
+      }
+
+      if (percentLabel) {
+        percentLabel.innerText = `${percent}% Completed`;
+        percentLabel.className = isDelivered 
+          ? "text-xs font-bold text-emerald-700 font-mono bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200" 
+          : "text-xs font-bold text-blue-600 font-mono bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100";
+      }
+
+      container.innerHTML = stages.map((stage, idx) => {
+        const isCompleted = idx <= activeIdx;
+        const isCurrent = idx === activeIdx;
+
+        let iconName = 'check';
+        if (idx === 0) {
+          iconName = isCompleted ? 'check' : 'clock';
+        } else if (stage.isDeliveredNode) {
+          iconName = isCompleted ? 'check-circle-2' : 'home';
+        } else {
+          iconName = isCompleted ? 'check' : 'map-pin';
+        }
+
+        let circleClasses = 'bg-slate-100 text-slate-400 ring-4 ring-white border border-slate-300';
+        let textClasses = 'text-slate-400 font-medium';
+        let badgeClasses = 'bg-slate-100 text-slate-500';
+
+        if (isCompleted) {
+          if (stage.isDeliveredNode) {
+            circleClasses = 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20 ring-4 ring-emerald-100';
+            textClasses = 'text-emerald-700 font-bold';
+            badgeClasses = 'bg-emerald-100 text-emerald-800 font-bold';
+          } else if (isCurrent && !isDelivered) {
+            circleClasses = 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-100 pulse-dot';
+            textClasses = 'text-blue-700 font-bold';
+            badgeClasses = 'bg-blue-100 text-blue-800 font-bold';
+          } else {
+            circleClasses = 'bg-blue-600 text-white shadow-sm ring-4 ring-white';
+            textClasses = 'text-slate-800 font-semibold';
+            badgeClasses = 'bg-slate-100 text-slate-700 font-semibold';
+          }
+        }
+
+        return `
           <div class="flex flex-col items-center flex-1 min-w-[80px] max-w-[140px] px-1 text-center group">
             <div class="w-8 h-8 rounded-full ${circleClasses} flex items-center justify-center transition-all duration-300 z-10">
               <i data-lucide="${iconName}" class="w-4 h-4"></i>
@@ -1488,27 +1383,27 @@
             ${stage.sub ? `<span class="text-[10px] text-slate-400 truncate max-w-full mt-0.5" title="${stage.sub}">${stage.sub}</span>` : ''}
           </div>
         `;
-            }).join('');
+      }).join('');
 
-            lucide.createIcons();
-        }
+      lucide.createIcons();
+    }
 
-        function renderCustomerMilestones(milestones) {
-            const container = document.getElementById('custMilestonesContainer');
-            const sorted = [...milestones].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    function renderCustomerMilestones(milestones) {
+      const container = document.getElementById('custMilestonesContainer');
+      const sorted = [...milestones].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-            if (sorted.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 py-4">No milestone checkpoints logged yet.</p>`;
-                return;
-            }
+      if (sorted.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-4">No milestone checkpoints logged yet.</p>`;
+        return;
+      }
 
-            container.innerHTML = sorted.map((m, index) => {
-                const isLatest = index === 0;
-                const dateObj = new Date(m.timestamp);
-                const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-                const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      container.innerHTML = sorted.map((m, index) => {
+        const isLatest = index === 0;
+        const dateObj = new Date(m.timestamp);
+        const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-                return `
+        return `
           <div class="relative group">
             <div class="absolute -left-[33px] sm:-left-[41px] top-1 w-6 h-6 rounded-full ${isLatest ? 'bg-blue-600 ring-4 ring-blue-100' : 'bg-slate-300 ring-4 ring-white'} text-white flex items-center justify-center">
               <i data-lucide="${isLatest ? 'map-pin' : 'check'}" class="w-3.5 h-3.5"></i>
@@ -1533,177 +1428,176 @@
             </div>
           </div>
         `;
-            }).join('');
+      }).join('');
 
-            lucide.createIcons();
+      lucide.createIcons();
+    }
+
+    window.refreshCustomerData = function() {
+      if (activeCustomerShipment) {
+        const found = allShipments.find(s => s.trackingNumber.toUpperCase() === activeCustomerShipment.trackingNumber.toUpperCase());
+        if (found) {
+          renderCustomerTrackingView(found);
+          showToast("Tracking status refreshed", "info");
         }
+      }
+    };
 
-        window.refreshCustomerData = function () {
-            if (activeCustomerShipment) {
-                const found = allShipments.find(s => s.trackingNumber.toUpperCase() === activeCustomerShipment.trackingNumber.toUpperCase());
-                if (found) {
-                    renderCustomerTrackingView(found);
-                    showToast("Tracking status refreshed", "info");
-                }
-            }
-        };
+    window.switchView = function(view) {
+      const staffView = document.getElementById('staffView');
+      const customerView = document.getElementById('customerView');
+      const navStaffBtn = document.getElementById('navStaffBtn');
+      const navCustomerBtn = document.getElementById('navCustomerBtn');
 
-        window.switchView = function (view) {
-            const staffView = document.getElementById('staffView');
-            const customerView = document.getElementById('customerView');
-            const navStaffBtn = document.getElementById('navStaffBtn');
-            const navCustomerBtn = document.getElementById('navCustomerBtn');
+      if (view === 'staff') {
+        staffView.classList.remove('hidden');
+        customerView.classList.add('hidden');
+        navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
+        navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
+      } else {
+        staffView.classList.add('hidden');
+        customerView.classList.remove('hidden');
+        navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
+        navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
 
-            if (view === 'staff') {
-                staffView.classList.remove('hidden');
-                customerView.classList.add('hidden');
-                navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
-                navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
-            } else {
-                staffView.classList.add('hidden');
-                customerView.classList.remove('hidden');
-                navCustomerBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
-                navStaffBtn.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1.5 text-slate-600 hover:text-slate-900";
-
-                if (!activeCustomerShipment && selectedShipmentId) {
-                    const s = allShipments.find(item => item.id === selectedShipmentId);
-                    if (s) {
-                        document.getElementById('customerSearchInput').value = s.trackingNumber;
-                        window.handleCustomerSearchSubmit();
-                    }
-                }
-            }
-            lucide.createIcons();
-        };
-
-        window.viewActiveInCustomerPortal = function () {
-            if (!selectedShipmentId) return;
-            const s = allShipments.find(item => item.id === selectedShipmentId);
-            if (!s) return;
-
+        if (!activeCustomerShipment && selectedShipmentId) {
+          const s = allShipments.find(item => item.id === selectedShipmentId);
+          if (s) {
             document.getElementById('customerSearchInput').value = s.trackingNumber;
-            switchView('customer');
             window.handleCustomerSearchSubmit();
-        };
-
-        window.copyCustomerLinkFromDetail = function () {
-            if (!selectedShipmentId) return;
-            const s = allShipments.find(item => item.id === selectedShipmentId);
-            if (!s) return;
-
-            const link = `${window.location.origin}${window.location.pathname}#track=${encodeURIComponent(s.trackingNumber)}`;
-            copyToClipboardText(link);
-            showToast("Customer tracking link copied to clipboard!", "success");
-        };
-
-        window.copyCustomerCurrentLink = function () {
-            if (!activeCustomerShipment) return;
-            const link = `${window.location.origin}${window.location.pathname}#track=${encodeURIComponent(activeCustomerShipment.trackingNumber)}`;
-            copyToClipboardText(link);
-            showToast("Tracking link copied to clipboard!", "success");
-        };
-
-        function copyToClipboardText(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.opacity = "0";
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-            } catch (err) {
-                console.error("Clipboard copy failed", err);
-            }
-            document.body.removeChild(textArea);
+          }
         }
+      }
+      lucide.createIcons();
+    };
 
-        function checkUrlForTrackingCode() {
-            const hash = window.location.hash;
-            if (hash && hash.includes('track=')) {
-                const parts = hash.split('track=');
-                if (parts[1]) {
-                    const code = decodeURIComponent(parts[1]);
-                    setTimeout(() => {
-                        switchView('customer');
-                        document.getElementById('customerSearchInput').value = code;
-                        window.handleCustomerSearchSubmit();
-                    }, 300);
-                }
-            }
-        }
+    window.viewActiveInCustomerPortal = function() {
+      if (!selectedShipmentId) return;
+      const s = allShipments.find(item => item.id === selectedShipmentId);
+      if (!s) return;
 
-        function getStatusBadgeStyle(status) {
-            const lower = (status || '').toLowerCase();
-            if (lower.includes('delivered')) {
-                return { bg: 'bg-emerald-100', text: 'text-emerald-800' };
-            } else if (lower.includes('out') || lower.includes('courier')) {
-                return { bg: 'bg-indigo-100', text: 'text-indigo-800' };
-            } else if (lower.includes('transit') || lower.includes('depart') || lower.includes('route')) {
-                return { bg: 'bg-blue-100', text: 'text-blue-800' };
-            } else if (lower.includes('process') || lower.includes('sorting') || lower.includes('hub')) {
-                return { bg: 'bg-amber-100', text: 'text-amber-800' };
-            } else if (lower.includes('exception') || lower.includes('hold') || lower.includes('delay') || lower.includes('issue')) {
-                return { bg: 'bg-rose-100', text: 'text-rose-800' };
-            }
-            return { bg: 'bg-slate-100', text: 'text-slate-800' };
-        }
+      document.getElementById('customerSearchInput').value = s.trackingNumber;
+      switchView('customer');
+      window.handleCustomerSearchSubmit();
+    };
 
-        /* Modal Configuration Handlers for Netlify / Custom Firebase */
-        window.openConfigModal = function () {
-            document.getElementById('cfgApiKey').value = activeFirebaseConfig.apiKey || '';
-            document.getElementById('cfgAuthDomain').value = activeFirebaseConfig.authDomain || '';
-            document.getElementById('cfgProjectId').value = activeFirebaseConfig.projectId || '';
-            document.getElementById('cfgStorageBucket').value = activeFirebaseConfig.storageBucket || '';
-            document.getElementById('cfgSenderId').value = activeFirebaseConfig.messagingSenderId || '';
-            document.getElementById('cfgAppId').value = activeFirebaseConfig.appId || '';
-            document.getElementById('configModal').classList.remove('hidden');
-        };
+    window.copyCustomerLinkFromDetail = function() {
+      if (!selectedShipmentId) return;
+      const s = allShipments.find(item => item.id === selectedShipmentId);
+      if (!s) return;
 
-        window.closeConfigModal = function () {
-            document.getElementById('configModal').classList.add('hidden');
-        };
+      // Link format works with both Netlify and local preview
+      const link = `${window.location.origin}${window.location.pathname}?track=${encodeURIComponent(s.trackingNumber)}`;
+      copyToClipboardText(link);
+      showToast("Customer direct-access link copied to clipboard!", "success");
+    };
 
-        window.saveCustomFirebaseConfig = async function (e) {
-            e.preventDefault();
-            const newCfg = {
-                apiKey: document.getElementById('cfgApiKey').value.trim(),
-                authDomain: document.getElementById('cfgAuthDomain').value.trim(),
-                projectId: document.getElementById('cfgProjectId').value.trim(),
-                storageBucket: document.getElementById('cfgStorageBucket').value.trim(),
-                messagingSenderId: document.getElementById('cfgSenderId').value.trim(),
-                appId: document.getElementById('cfgAppId').value.trim()
-            };
+    window.copyCustomerCurrentLink = function() {
+      if (!activeCustomerShipment) return;
+      const link = `${window.location.origin}${window.location.pathname}?track=${encodeURIComponent(activeCustomerShipment.trackingNumber)}`;
+      copyToClipboardText(link);
+      showToast("Tracking link copied to clipboard!", "success");
+    };
 
-            activeFirebaseConfig = newCfg;
-            closeConfigModal();
-            showToast("Connecting to custom Firebase...", "info");
-            await initFirebaseService(newCfg);
-        };
+    // PRIVACY ENFORCEMENT: If tracking code is in URL, lock to customer-only mode
+    function detectAndEnforceCustomerLink() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let trackParam = urlParams.get('track');
 
-        window.loadDefaultConfigSample = function () {
-            closeConfigModal();
-            seedInitialDemoData();
-            showToast("Reset to demo mode", "info");
-        };
+      // Also check hash #track=...
+      if (!trackParam && window.location.hash.includes('track=')) {
+        const parts = window.location.hash.split('track=');
+        if (parts[1]) trackParam = decodeURIComponent(parts[1].split('&')[0]);
+      }
 
-        // Initialize application on window load
-        window.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
+      if (trackParam) {
+        isCustomerLinkMode = true;
+        targetTrackingCode = trackParam.trim().toUpperCase();
 
-            // Auto-fill future date on shipment creation
-            const futureDate = new Date();
-            futureDate.setDate(futureDate.getDate() + 4);
-            const estInput = document.getElementById('newEstDelivery');
-            if (estInput) {
-                estInput.value = futureDate.toISOString().split('T')[0];
-            }
+        // Hide all staff navigation & control elements
+        document.getElementById('roleNavContainer')?.classList.add('hidden');
+        document.getElementById('cloudConfigNavBtn')?.classList.add('hidden');
+        document.getElementById('quickCreateBtn')?.classList.add('hidden');
+        document.getElementById('staffView')?.classList.add('hidden');
 
-            // Start Firebase connection
-            initFirebaseService(activeFirebaseConfig);
-            checkUrlForTrackingCode();
-        });
-    </script>
+        // Show Customer Verified Header & Portal
+        document.getElementById('customerOnlyBadge')?.classList.remove('hidden');
+        document.getElementById('customerOnlyBadge')?.classList.add('inline-flex');
+        document.getElementById('customerView')?.classList.remove('hidden');
+        document.getElementById('customerSearchBanner')?.classList.add('hidden'); // Hide general search to keep focused on this package only
+        document.getElementById('customerDirectHeader')?.classList.remove('hidden');
+
+        // Set input value
+        const searchInput = document.getElementById('customerSearchInput');
+        if (searchInput) searchInput.value = targetTrackingCode;
+      }
+    }
+
+    // Modal Configuration Handlers
+    window.openConfigModal = function() {
+      document.getElementById('cfgApiKey').value = activeFirebaseConfig.apiKey || '';
+      document.getElementById('cfgAuthDomain').value = activeFirebaseConfig.authDomain || '';
+      document.getElementById('cfgProjectId').value = activeFirebaseConfig.projectId || '';
+      document.getElementById('cfgStorageBucket').value = activeFirebaseConfig.storageBucket || '';
+      document.getElementById('cfgSenderId').value = activeFirebaseConfig.messagingSenderId || '';
+      document.getElementById('cfgAppId').value = activeFirebaseConfig.appId || '';
+      document.getElementById('configModal').classList.remove('hidden');
+    };
+
+    window.closeConfigModal = function() {
+      document.getElementById('configModal').classList.add('hidden');
+    };
+
+    window.saveCustomFirebaseConfig = async function(e) {
+      e.preventDefault();
+      const newCfg = {
+        apiKey: document.getElementById('cfgApiKey').value.trim(),
+        authDomain: document.getElementById('cfgAuthDomain').value.trim(),
+        projectId: document.getElementById('cfgProjectId').value.trim(),
+        storageBucket: document.getElementById('cfgStorageBucket').value.trim(),
+        messagingSenderId: document.getElementById('cfgSenderId').value.trim(),
+        appId: document.getElementById('cfgAppId').value.trim()
+      };
+
+      // Persist to localStorage so Netlify and browser refreshes never lose it!
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newCfg));
+      } catch (err) {
+        console.warn("Storage save error:", err);
+      }
+
+      activeFirebaseConfig = newCfg;
+      closeConfigModal();
+      showToast("Connecting to Firebase cloud...", "info");
+      await initFirebaseService(newCfg);
+      showToast("Firebase configured and stored successfully!", "success");
+    };
+
+    window.loadDefaultConfigSample = function() {
+      closeConfigModal();
+      activeFirebaseConfig = firebaseConfig;
+      initFirebaseService(firebaseConfig);
+      showToast("Connected to tmpltracking project", "info");
+    };
+
+    // Initialize application on window load
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+
+      // Check URL for customer tracking link privacy lock
+      detectAndEnforceCustomerLink();
+
+      // Auto-fill future date on shipment creation modal
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 4);
+      const estInput = document.getElementById('newEstDelivery');
+      if (estInput) {
+        estInput.value = futureDate.toISOString().split('T')[0];
+      }
+
+      // Start Firebase connection with hardcoded tmpltracking config
+      initFirebaseService(activeFirebaseConfig);
+    });
+  </script>
 </body>
-
 </html>
