@@ -80,7 +80,13 @@
 
         <!-- Role / View Mode Toggle & Firebase Settings -->
         <div class="flex items-center space-x-2 sm:space-x-3">
-          <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
+          <!-- Customer Locked Direct Tracking Badge -->
+          <div id="customerOnlyBadge" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Verified Tracking View</span>
+          </div>
+
+          <div id="roleNavContainer" class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-200">
             <button id="navStaffBtn" onclick="switchView('staff')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
               <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
               <span>Staff Hub</span>
@@ -92,7 +98,7 @@
           </div>
 
           <!-- Firebase Cloud Config Button -->
-          <button onclick="openConfigModal()" title="Firebase Settings for Netlify / Web" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl border border-slate-200 transition flex items-center gap-1 text-xs">
+          <button id="cloudConfigNavBtn" onclick="openConfigModal()" title="Firebase Settings for Netlify / Web" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl border border-slate-200 transition flex items-center gap-1 text-xs">
             <i data-lucide="database" class="w-4 h-4 text-amber-500"></i>
             <span id="cloudStatusBadge" class="hidden md:inline font-medium">Cloud Setup</span>
           </button>
@@ -326,8 +332,25 @@
     <!-- VIEW 2: CUSTOMER TRACKING PORTAL           -->
     <!-- ========================================== -->
     <div id="customerView" class="hidden space-y-8 max-w-4xl mx-auto">
+      <!-- Dedicated Tracking Header (Shown in Customer-Only Link Mode) -->
+      <div id="customerDirectHeader" class="hidden bg-white border border-blue-100 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+            <i data-lucide="package-search" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base">Dedicated Consignment Tracker</h3>
+            <p class="text-xs text-slate-500">Viewing authorized live transit status for your shipment</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
+          Live Checkpoint Sync
+        </span>
+      </div>
+
       <!-- Search Bar for Customer -->
-      <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-blue-900/10">
+      <div id="customerSearchBanner" class="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-blue-900/10">
         <div class="max-w-2xl mx-auto text-center space-y-3">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm border border-white/20">
             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-300"></i>
@@ -630,6 +653,7 @@
 
     /* Global Context & Direct Firebase Configuration */
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'tmpltracking';
+    const STORAGE_KEY = 'swifttrack_firebase_config_v1';
 
     // Direct Firebase configuration provided for tmpltracking
     const firebaseConfig = {
@@ -655,6 +679,24 @@
     let activeCustomerShipment = null;
     let isCustomerLinkMode = false;
     let targetTrackingCode = '';
+
+    // Status badge style helper
+    function getStatusBadgeStyle(status = '') {
+      const s = (status || '').toLowerCase();
+      if (s.includes('deliver')) {
+        return { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-200' };
+      }
+      if (s.includes('out for delivery')) {
+        return { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-200' };
+      }
+      if (s.includes('transit') || s.includes('route') || s.includes('depart') || s.includes('pickup') || s.includes('progress') || s.includes('dispatch')) {
+        return { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' };
+      }
+      if (s.includes('hold') || s.includes('exception') || s.includes('delay') || s.includes('alert') || s.includes('cancel')) {
+        return { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' };
+      }
+      return { bg: 'bg-slate-100', text: 'text-slate-800', border: 'border-slate-200' };
+    }
 
     // Safe clipboard copy helper for iframe and production domains
     function copyToClipboardText(text) {
