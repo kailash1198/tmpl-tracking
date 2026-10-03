@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TMPL - Real-Time Shipment & Milestone Portal</title>
+  <title>SwiftTrack - Real-Time Shipment & Milestone Portal</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -72,9 +72,9 @@
           </div>
           <div>
             <span class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
-              TMPL <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-700 border border-blue-200">LIVE</span>
+              SwiftTrack <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-700 border border-blue-200">LIVE</span>
             </span>
-            <p class="text-xs text-slate-500 font-medium hidden sm:block">Real-Time Shipment Tracking by TMPL</p>
+            <p class="text-xs text-slate-500 font-medium hidden sm:block">Real-Time Milestone Cloud Portal</p>
           </div>
         </div>
 
@@ -501,7 +501,7 @@
               <p class="text-xs text-slate-500 mt-1" id="custCarrierText">Carrier: DHL Express • Service: Priority Freight</p>
             </div>
             <div class="flex flex-col sm:items-end">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Actual Delivery Date</span>
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Estimated Delivery (ETA)</span>
               <p id="custEstimatedDelivery" class="text-xl font-bold text-blue-600 mt-0.5">Friday, Oct 4, 2026</p>
               <div id="custStatusPill" class="mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
@@ -1875,78 +1875,76 @@
       activeCard.classList.remove('hidden');
 
       document.getElementById('custTrackingNum').innerText = shipment.trackingNumber;
-      document.getElementById('custCarrierText').innerText = `Carrier: ${shipment.carrier || 'SwiftTrack Logistics'} • Customer: ${shipment.customerName || 'Consignment Client'}`;
-      document.getElementById('custEstimatedDelivery').innerText = shipment.estimatedDelivery || 'Pending Update';
+      document.getElementById('custCarrierText').innerText = `Carrier: ${shipment.carrier || 'Logistics Partner'} • Customer: ${shipment.customerName || 'Consignment Client'}`;
+
+      // Feature 4 & 6: Actual Delivery (ATA) vs Estimated Delivery (ETA) logic
+      const finalMilestone = (shipment.milestones || []).find(m => m.title.toLowerCase().includes('final delivery'));
+      const isDelivered = (shipment.status || '').toLowerCase().includes('deliver') || (finalMilestone && finalMilestone.state === 'Completed');
+      const hasActualDate = finalMilestone && finalMilestone.actualDate;
+
+      const dateLabel = document.getElementById('custDeliveryDateLabel');
+      const dateValue = document.getElementById('custEstimatedDelivery');
+
+      if (isDelivered && hasActualDate) {
+        dateLabel.innerText = "ACTUAL DELIVERY (ATA)";
+        dateLabel.className = "text-xs font-bold text-emerald-700 uppercase tracking-wider";
+        dateValue.innerText = formatDateTime(finalMilestone.actualDate);
+        dateValue.className = "text-xl font-bold text-emerald-600 mt-0.5";
+      } else {
+        dateLabel.innerText = "ESTIMATED DELIVERY (ETA)";
+        dateLabel.className = "text-xs font-semibold text-slate-400 uppercase tracking-wider";
+        dateValue.innerText = shipment.estimatedDelivery || (finalMilestone?.plannedDate ? formatDateTime(finalMilestone.plannedDate) : 'Pending Update');
+        dateValue.className = "text-xl font-bold text-blue-600 mt-0.5";
+      }
+
       document.getElementById('custStatusText').innerText = shipment.status;
 
       const pill = document.getElementById('custStatusPill');
       const statusStyle = getStatusBadgeStyle(shipment.status);
       pill.className = `mt-1 px-3 py-1 rounded-full text-xs font-semibold ${statusStyle.bg} ${statusStyle.text} inline-flex items-center gap-1.5`;
 
-      // Feature 7: Logistics Metadata
+      // Logistics Metadata
       document.getElementById('custHblAwb').innerText = shipment.hblAwb || 'N/A';
-      document.getElementById('custVesselFlight').innerText = shipment.vesselFlight || (shipment.carrier || 'Standard Flight');
+      document.getElementById('custVesselFlight').innerText = shipment.vesselFlight || (shipment.carrier || 'Scheduled Transit');
 
-      const sortedMilestones = [...(shipment.milestones || [])].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      const latestM = sortedMilestones[0];
+      // Filter only customer visible milestones
+      const visibleMilestones = (shipment.milestones || []).filter(m => m.visibleToCustomer !== false);
+      const completedMilestones = visibleMilestones.filter(m => m.state === 'Completed' || (m.actualDate && !m.state));
+      const latestCompleted = completedMilestones.length > 0 ? completedMilestones[completedMilestones.length - 1] : null;
 
-      document.getElementById('custCurrentLocation').innerText = latestM ? latestM.location : (shipment.origin || 'Origin Hub');
-      document.getElementById('custLatestUpdate').innerText = latestM 
-        ? `${new Date(latestM.timestamp).toLocaleDateString()} ${new Date(latestM.timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`
-        : 'Awaiting Update';
+      document.getElementById('custCurrentLocation').innerText = latestCompleted ? latestCompleted.location : (shipment.origin || 'Origin Hub');
+      document.getElementById('custLatestUpdate').innerText = latestCompleted 
+        ? formatDateTime(latestCompleted.actualDate || latestCompleted.timestamp)
+        : (visibleMilestones[0] ? formatDateTime(visibleMilestones[0].plannedDate || visibleMilestones[0].timestamp) : 'Awaiting Update');
 
       document.getElementById('custSenderName').innerText = shipment.senderName;
       document.getElementById('custOriginCity').innerText = shipment.origin;
       document.getElementById('custReceiverName').innerText = shipment.recipientName;
       document.getElementById('custDestCity').innerText = shipment.destination;
 
-      updatePipelineProgressBar(shipment);
-      renderCustomerMilestones(shipment.milestones || []);
+      updatePipelineProgressBar(shipment, visibleMilestones);
+      renderCustomerMilestones(visibleMilestones);
     }
 
-    // Dynamic Milestone Pipeline
-    function updatePipelineProgressBar(shipment) {
+    // Dynamic Milestone Pipeline (Filtered for customer visibility)
+    function updatePipelineProgressBar(shipment, visibleMilestones) {
       const container = document.getElementById('custProgressNodes');
       const progressLine = document.getElementById('custProgressLine');
       const percentLabel = document.getElementById('custProgressPercentLabel');
       if (!container) return;
 
-      const milestones = shipment.milestones ? [...shipment.milestones] : [];
-      milestones.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
+      const milestones = visibleMilestones || [];
       const isDelivered = (shipment.status || '').toLowerCase().includes('delivered');
 
-      const stages = [
-        {
-          key: 'waiting',
-          badge: 'Start',
-          title: 'Waiting',
-          sub: 'Shipment Created',
-          isDeliveredNode: false
-        }
-      ];
+      if (milestones.length === 0) {
+        container.innerHTML = `<div class="py-2 text-xs text-slate-400">Waiting for milestone updates...</div>`;
+        return;
+      }
 
-      milestones.forEach((m, idx) => {
-        stages.push({
-          key: `m-${m.id || idx}`,
-          badge: `Milestone ${idx + 1}`,
-          title: m.title || `Milestone ${idx + 1}`,
-          sub: m.location || m.statusTag || '',
-          isDeliveredNode: false
-        });
-      });
-
-      stages.push({
-        key: 'delivered',
-        badge: 'Final Goal',
-        title: 'Delivered',
-        sub: shipment.destination || 'Destination',
-        isDeliveredNode: true
-      });
-
-      const totalStages = stages.length;
-      const activeIdx = isDelivered ? totalStages - 1 : milestones.length;
-      const percent = totalStages > 1 ? Math.min(100, Math.round((activeIdx / (totalStages - 1)) * 100)) : 0;
+      // Calculate progress percentage based on completed milestones
+      const totalCount = milestones.length;
+      const completedCount = milestones.filter(m => m.state === 'Completed' || (m.actualDate && !m.state)).length;
+      const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
       if (progressLine) {
         progressLine.style.width = `${percent}%`;
@@ -1962,54 +1960,47 @@
           : "text-xs font-bold text-blue-600 font-mono bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100";
       }
 
-      container.innerHTML = stages.map((stage, idx) => {
-        const isCompleted = idx <= activeIdx;
-        const isCurrent = idx === activeIdx;
+      container.innerHTML = milestones.map((stage, idx) => {
+        const isCompleted = stage.state === 'Completed' || (stage.actualDate && !stage.state);
+        const isFinal = idx === milestones.length - 1;
+        const isCurrent = !isCompleted && (idx === 0 || (milestones[idx - 1] && (milestones[idx - 1].state === 'Completed' || milestones[idx - 1].actualDate)));
 
-        let iconName = 'check';
-        if (idx === 0) {
-          iconName = isCompleted ? 'check' : 'clock';
-        } else if (stage.isDeliveredNode) {
-          iconName = isCompleted ? 'check-circle-2' : 'home';
-        } else {
-          iconName = isCompleted ? 'check' : 'map-pin';
-        }
-
+        let iconName = 'clock';
         let circleClasses = 'bg-slate-100 text-slate-400 ring-4 ring-white border border-slate-300';
         let textClasses = 'text-slate-400 font-medium';
         let badgeClasses = 'bg-slate-100 text-slate-500';
 
         if (isCompleted) {
-          if (stage.isDeliveredNode) {
-            circleClasses = 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20 ring-4 ring-emerald-100';
-            textClasses = 'text-emerald-700 font-bold';
-            badgeClasses = 'bg-emerald-100 text-emerald-800 font-bold';
-          } else if (isCurrent && !isDelivered) {
-            circleClasses = 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-100 pulse-dot';
-            textClasses = 'text-blue-700 font-bold';
-            badgeClasses = 'bg-blue-100 text-blue-800 font-bold';
-          } else {
-            circleClasses = 'bg-blue-600 text-white shadow-sm ring-4 ring-white';
-            textClasses = 'text-slate-800 font-semibold';
-            badgeClasses = 'bg-slate-100 text-slate-700 font-semibold';
-          }
+          iconName = 'check';
+          circleClasses = isFinal 
+            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20 ring-4 ring-emerald-100' 
+            : 'bg-blue-600 text-white shadow-sm ring-4 ring-white';
+          textClasses = isFinal ? 'text-emerald-700 font-bold' : 'text-slate-800 font-semibold';
+          badgeClasses = isFinal ? 'bg-emerald-100 text-emerald-800 font-bold' : 'bg-blue-100 text-blue-800 font-semibold';
+        } else if (isCurrent) {
+          iconName = isFinal ? 'home' : 'map-pin';
+          circleClasses = 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-100 pulse-dot';
+          textClasses = 'text-blue-700 font-bold';
+          badgeClasses = 'bg-blue-100 text-blue-800 font-bold';
         }
 
+        const badgeText = idx === 0 ? 'Start' : (isFinal ? 'Final Goal' : `Milestone ${idx}`);
+
         return `
-          <div class="flex flex-col items-center flex-1 min-w-[80px] max-w-[140px] px-1 text-center group">
+          <div class="flex flex-col items-center flex-1 min-w-[85px] max-w-[140px] px-1 text-center group">
             <div class="w-8 h-8 rounded-full ${circleClasses} flex items-center justify-center transition-all duration-300 z-10">
               <i data-lucide="${iconName}" class="w-4 h-4"></i>
             </div>
             
             <span class="text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wider mt-2.5 transition ${badgeClasses}">
-              ${stage.badge}
+              ${badgeText}
             </span>
 
             <span class="text-xs ${textClasses} mt-1 line-clamp-1 group-hover:line-clamp-none transition font-sans" title="${stage.title}">
               ${stage.title}
             </span>
 
-            ${stage.sub ? `<span class="text-[10px] text-slate-400 truncate max-w-full mt-0.5" title="${stage.sub}">${stage.sub}</span>` : ''}
+            ${stage.location ? `<span class="text-[10px] text-slate-400 truncate max-w-full mt-0.5" title="${stage.location}">${stage.location}</span>` : ''}
           </div>
         `;
       }).join('');
@@ -2017,43 +2008,47 @@
       lucide.createIcons();
     }
 
-    function renderCustomerMilestones(milestones) {
+    function renderCustomerMilestones(visibleMilestones) {
       const container = document.getElementById('custMilestonesContainer');
-      const sorted = [...milestones].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const list = visibleMilestones || [];
 
-      if (sorted.length === 0) {
+      if (list.length === 0) {
         container.innerHTML = `<p class="text-xs text-slate-400 py-4">No milestone checkpoints logged yet.</p>`;
         return;
       }
 
-      container.innerHTML = sorted.map((m, index) => {
+      // Display in chronological order or reverse chronological depending on customer preference
+      const displayList = [...list].reverse();
+
+      container.innerHTML = displayList.map((m, index) => {
         const isLatest = index === 0;
-        const dateObj = new Date(m.timestamp);
-        const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const isCompleted = m.state === 'Completed' || (m.actualDate && !m.state);
+        const dateToShow = m.actualDate || m.plannedDate || m.timestamp;
+        const formattedDate = formatDateTime(dateToShow);
 
         return `
           <div class="relative group">
-            <div class="absolute -left-[33px] sm:-left-[41px] top-1 w-6 h-6 rounded-full ${isLatest ? 'bg-blue-600 ring-4 ring-blue-100' : 'bg-slate-300 ring-4 ring-white'} text-white flex items-center justify-center">
-              <i data-lucide="${isLatest ? 'map-pin' : 'check'}" class="w-3.5 h-3.5"></i>
+            <div class="absolute -left-[33px] sm:-left-[41px] top-1 w-6 h-6 rounded-full ${isCompleted ? (isLatest ? 'bg-emerald-600 ring-4 ring-emerald-100' : 'bg-blue-600 ring-4 ring-blue-100') : 'bg-slate-300 ring-4 ring-white'} text-white flex items-center justify-center">
+              <i data-lucide="${isCompleted ? 'check' : 'clock'}" class="w-3.5 h-3.5"></i>
             </div>
 
-            <div class="${isLatest ? 'bg-blue-50/70 border-blue-200 ring-1 ring-blue-500/20' : 'bg-slate-50 border-slate-200'} border rounded-2xl p-4 sm:p-5 transition hover:shadow-sm">
+            <div class="${isLatest ? 'bg-blue-50/70 border-blue-200 ring-1 ring-blue-500/20' : 'bg-slate-50 border-slate-200'} border rounded-2xl p-4 sm:p-5 transition hover:shadow-sm space-y-2">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <h5 class="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <span>${m.title}</span>
+                  ${isCompleted ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Completed</span>' : '<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Planned</span>'}
                   ${isLatest ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white uppercase tracking-wider">Latest Checkpoint</span>' : ''}
                 </h5>
-                <span class="text-xs text-slate-500 font-medium">${dateStr} &bull; ${timeStr}</span>
+                <span class="text-xs text-slate-500 font-medium font-mono">${formattedDate}</span>
               </div>
 
-              <div class="flex items-center gap-2 mt-2 text-xs text-slate-600">
+              <div class="flex items-center gap-2 text-xs text-slate-600">
                 <i data-lucide="navigation-2" class="w-3.5 h-3.5 text-blue-600"></i>
                 <span class="font-semibold">${m.location}</span>
-                <span class="text-[10px] px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-medium">${m.statusTag || 'Update'}</span>
+                ${m.statusTag ? `<span class="text-[10px] px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-medium">${m.statusTag}</span>` : ''}
               </div>
 
-              ${m.notes ? `<p class="mt-2 text-xs text-slate-600 bg-white/70 p-2.5 rounded-xl border border-slate-100 leading-relaxed">${m.notes}</p>` : ''}
+              ${m.notes ? `<p class="mt-1 text-xs text-slate-600 bg-white/80 p-2.5 rounded-xl border border-slate-100 leading-relaxed">${m.notes}</p>` : ''}
             </div>
           </div>
         `;
