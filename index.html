@@ -424,8 +424,12 @@
                   </div>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-xs font-medium text-slate-600 mb-1">Planned / Scheduled Date & Time *</label>
-                      <input type="datetime-local" id="mEventDateTime" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <label class="block text-xs font-semibold text-blue-900 mb-1 flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-blue-600"></i>
+                        <span>Milestone Date & Time *</span>
+                      </label>
+                      <input type="datetime-local" id="mEventDateTime" required class="w-full text-xs font-medium px-3 py-2 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50/30">
+                      <span class="text-[10px] text-slate-500 mt-0.5 block">Specify the exact event date & time (past or planned in advance).</span>
                     </div>
                     <div>
                       <label class="block text-xs font-medium text-slate-600 mb-1">Status / Event Tag *</label>
@@ -2043,11 +2047,17 @@
 
       allMilestones.forEach((m, idx) => {
         const isPlanned = m.isPlanned === true && m.isSentToCustomer !== true;
+        const mDateObj = m.timestamp ? new Date(m.timestamp) : null;
+        const shortDateStr = mDateObj && !isNaN(mDateObj.getTime())
+          ? mDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          : '';
+
         stages.push({
           key: `m-${m.id || idx}`,
           badge: isPlanned ? 'Planned' : `Reached`,
           title: m.title || `Milestone ${idx + 1}`,
           sub: isPlanned ? `Scheduled` : m.location,
+          dateStr: shortDateStr,
           isPlanned: isPlanned,
           isCompleted: !isPlanned,
           isDeliveredNode: false
@@ -2059,6 +2069,7 @@
         badge: 'Final Goal',
         title: 'Delivered',
         sub: shipment.destination || 'Destination',
+        dateStr: shipment.estimatedDelivery || '',
         isPlanned: !isDelivered,
         isCompleted: isDelivered,
         isDeliveredNode: true
@@ -2102,7 +2113,6 @@
             iconName = 'check';
           }
         } else if (stage.isPlanned) {
-          // Planned Milestone node: distinct Planned styling with clock/calendar icon
           circleClasses = 'bg-amber-50 text-amber-600 border-2 border-dashed border-amber-400 ring-4 ring-white';
           textClasses = 'text-amber-800 font-medium';
           badgeClasses = 'bg-amber-100 text-amber-800 font-semibold border border-amber-200';
@@ -2115,7 +2125,7 @@
         }
 
         return `
-          <div class="flex flex-col items-center flex-1 min-w-[80px] max-w-[140px] px-1 text-center group">
+          <div class="flex flex-col items-center flex-1 min-w-[85px] max-w-[140px] px-1 text-center group">
             <div class="w-8 h-8 rounded-full ${circleClasses} flex items-center justify-center transition-all duration-300 z-10">
               <i data-lucide="${iconName}" class="w-4 h-4"></i>
             </div>
@@ -2124,9 +2134,16 @@
               ${stage.badge}
             </span>
 
-            <span class="text-xs ${textClasses} mt-1 line-clamp-1 group-hover:line-clamp-none transition font-sans" title="${stage.title}">
+            <span class="text-xs ${textClasses} mt-1 line-clamp-1 group-hover:line-clamp-none transition font-sans font-medium" title="${stage.title}">
               ${stage.title}
             </span>
+
+            ${stage.dateStr ? `
+              <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-md mt-1 border border-slate-200/80 shadow-2xs">
+                <i data-lucide="calendar" class="w-2.5 h-2.5 text-slate-400"></i>
+                ${stage.dateStr}
+              </span>
+            ` : ''}
 
             ${stage.sub ? `<span class="text-[10px] text-slate-400 truncate max-w-full mt-0.5" title="${stage.sub}">${stage.sub}</span>` : ''}
           </div>
@@ -2151,8 +2168,12 @@
         const isLatest = index === 0 && !isPlanned;
         
         const dateObj = new Date(m.timestamp);
-        const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = !isNaN(dateObj.getTime())
+          ? dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+          : 'Date not specified';
+        const timeStr = !isNaN(dateObj.getTime())
+          ? dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+          : '';
 
         return `
           <div class="relative group">
@@ -2170,7 +2191,7 @@
                 : (isLatest ? 'bg-blue-50/70 border-blue-200 ring-1 ring-blue-500/20' : 'bg-slate-50 border-slate-200')
             } border rounded-2xl p-4 sm:p-5 transition hover:shadow-sm">
               
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div class="flex items-center gap-2 flex-wrap">
                   <h5 class="text-sm font-bold text-slate-900">${m.title}</h5>
                   ${isPlanned 
@@ -2185,9 +2206,12 @@
                   }
                   ${isLatest ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white uppercase tracking-wider">Latest Checkpoint</span>' : ''}
                 </div>
-                <span class="text-xs ${isPlanned ? 'text-amber-700' : 'text-slate-500'} font-medium">
-                  ${isPlanned ? 'Estimated: ' : ''}${dateStr} &bull; ${timeStr}
-                </span>
+                
+                <!-- Prominent Milestone Date & Time Badge -->
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${isPlanned ? 'bg-amber-100/70 text-amber-900 border border-amber-200' : 'bg-white text-slate-800 border border-slate-200 shadow-2xs'} text-xs font-semibold whitespace-nowrap">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5 ${isPlanned ? 'text-amber-600' : 'text-blue-600'}"></i>
+                  <span>${isPlanned ? 'Planned: ' : ''}${dateStr}${timeStr ? ` &bull; ${timeStr}` : ''}</span>
+                </div>
               </div>
 
               <div class="flex items-center gap-2 mt-2 text-xs text-slate-600">
