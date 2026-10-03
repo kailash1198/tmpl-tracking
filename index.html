@@ -66,7 +66,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo & Brand -->
-        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('staff')">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="handleBrandLogoClick()">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
             <i data-lucide="package-check" class="w-6 h-6"></i>
           </div>
@@ -122,7 +122,7 @@
     <!-- VIEW 1: STAFF MANAGEMENT HUB               -->
     <!-- ========================================== -->
     <div id="staffView" class="space-y-6">
-      <!-- Quick Tracking Number Search Bar (Feature 4) -->
+      <!-- Quick Tracking Number Search Bar -->
       <div class="bg-gradient-to-r from-slate-900 to-indigo-950 rounded-2xl p-5 shadow-sm text-white flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-400">
@@ -155,7 +155,7 @@
               Live Cloud Sync
             </span>
           </div>
-          <p class="text-sm text-slate-500 mt-1">Manage client shipments, edit route details, publish milestones, and monitor live progress.</p>
+          <p class="text-sm text-slate-500 mt-1">Manage client shipments, plan milestones ahead, send milestone updates, and monitor live progress.</p>
         </div>
         <div class="flex items-center gap-3 w-full sm:w-auto">
           <button onclick="openCreateShipmentModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm transition">
@@ -205,7 +205,7 @@
         </div>
       </div>
 
-      <!-- Feature 2: Customer-Wise Shipment Organization Directory -->
+      <!-- Customer-Wise Shipment Organization Directory -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- Left Column: Customer Directory & Search -->
         <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
@@ -231,7 +231,7 @@
         <!-- Right Column: Customer's Shipments Table or Active Shipment Workstation -->
         <div class="lg:col-span-8 space-y-6">
           
-          <!-- View Container A: Customer Shipments Table (Feature 2) -->
+          <!-- View Container A: Customer Shipments Table -->
           <div id="customerShipmentsSection" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
               <div>
@@ -275,7 +275,7 @@
             </div>
           </div>
 
-          <!-- View Container B: Active Shipment Management Workstation (Milestones & Overview) -->
+          <!-- View Container B: Active Shipment Management Workstation -->
           <div id="shipmentDetailWorkstation" class="hidden space-y-6">
             <!-- Active Shipment Header Card -->
             <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
@@ -287,7 +287,7 @@
                       In Transit
                     </span>
                     <span id="detailCustomerBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                      Acme Corp
+                      Customer Name
                     </span>
                   </div>
                   <p class="text-xs text-slate-500 mt-1" id="detailCarrierInfo">Carrier: DHL Express &bull; Shipment: Ref #001</p>
@@ -338,13 +338,13 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                   <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Origin & Shipper</span>
-                  <p id="detailSender" class="text-sm font-semibold text-slate-800 mt-0.5">Acme Supply Co.</p>
-                  <p id="detailOrigin" class="text-xs text-slate-500">San Francisco, CA, USA</p>
+                  <p id="detailSender" class="text-sm font-semibold text-slate-800 mt-0.5">Origin Facility</p>
+                  <p id="detailOrigin" class="text-xs text-slate-500">Origin City</p>
                 </div>
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                   <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Destination & Consignee</span>
-                  <p id="detailRecipient" class="text-sm font-semibold text-slate-800 mt-0.5">Jane Doe</p>
-                  <p id="detailDestination" class="text-xs text-slate-500">Austin, TX, USA</p>
+                  <p id="detailRecipient" class="text-sm font-semibold text-slate-800 mt-0.5">Consignee Name</p>
+                  <p id="detailDestination" class="text-xs text-slate-500">Destination City</p>
                 </div>
               </div>
 
@@ -361,7 +361,7 @@
               </div>
             </div>
 
-            <!-- Milestone Management Section (Feature 3: Add, Edit, Delete Milestones) -->
+            <!-- Milestone Management Section (Planned Milestones in Advance & Milestone Updated trigger) -->
             <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
               <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
@@ -369,28 +369,53 @@
                     <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
                     Shipment Milestones
                   </h3>
-                  <p class="text-xs text-slate-500">Add, edit, or remove chronological logs seen directly by the customer.</p>
+                  <p class="text-xs text-slate-500">Plan milestones in advance with full details. Send updates to customers when reached.</p>
                 </div>
                 <button onclick="toggleAddMilestoneForm()" id="toggleMilestoneBtn" class="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1 transition">
                   <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                  <span>Add New Milestone</span>
+                  <span>Add / Plan Milestone</span>
                 </button>
               </div>
 
-              <!-- Add / Edit Milestone Form -->
+              <!-- Add / Edit Milestone Form with Milestone Type (Planned vs Completed) -->
               <div id="addMilestoneFormSection" class="hidden bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
                 <div class="flex items-center justify-between">
-                  <h4 id="milestoneFormHeading" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Publish New Milestone</h4>
+                  <h4 id="milestoneFormHeading" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Plan / Publish Milestone</h4>
                   <button type="button" onclick="cancelMilestoneForm()" class="text-slate-400 hover:text-slate-600 text-xs">
                     <i data-lucide="x" class="w-4 h-4"></i>
                   </button>
                 </div>
                 <form id="newMilestoneForm" onsubmit="handleSaveMilestone(event)" class="space-y-3">
                   <input type="hidden" id="editingMilestoneId" value="">
+
+                  <!-- Planned State Selector Banner -->
+                  <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl">
+                    <label class="block text-xs font-bold text-amber-900 mb-1.5 flex items-center gap-1.5">
+                      <i data-lucide="calendar-clock" class="w-4 h-4 text-amber-600"></i>
+                      Milestone Publication State
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-amber-200 cursor-pointer hover:border-amber-300">
+                        <input type="radio" name="milestoneStateMode" id="mModePlanned" value="planned" checked class="mt-0.5 text-amber-600 focus:ring-amber-500">
+                        <div>
+                          <span class="text-xs font-bold text-slate-900 block">Plan in Advance (Scheduled)</span>
+                          <span class="text-[11px] text-slate-500 block leading-tight">Customer sees milestone as <strong>Planned</strong>. Detailed notes/remarks remain hidden until sent.</span>
+                        </div>
+                      </label>
+                      <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 cursor-pointer hover:border-emerald-300">
+                        <input type="radio" name="milestoneStateMode" id="mModeCompleted" value="completed" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                        <div>
+                          <span class="text-xs font-bold text-slate-900 block">Completed (Reached Immediately)</span>
+                          <span class="text-[11px] text-slate-500 block leading-tight">Live immediately. Customer sees milestone as <strong>Completed</strong> with full remarks.</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label class="block text-xs font-medium text-slate-600 mb-1">Milestone Event / Title *</label>
-                      <input type="text" id="mEventTitle" required placeholder="e.g. Arrived at Sorting Facility" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <input type="text" id="mEventTitle" required placeholder="e.g. Arrived at Sorting Facility / Customs Clearance" class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                     </div>
                     <div>
                       <label class="block text-xs font-medium text-slate-600 mb-1">Location / Hub *</label>
@@ -399,7 +424,7 @@
                   </div>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label class="block text-xs font-medium text-slate-600 mb-1">Date & Time *</label>
+                      <label class="block text-xs font-medium text-slate-600 mb-1">Planned / Scheduled Date & Time *</label>
                       <input type="datetime-local" id="mEventDateTime" required class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                     </div>
                     <div>
@@ -408,20 +433,21 @@
                     </div>
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">Detailed Note / Remarks</label>
-                    <textarea id="mEventNotes" rows="2" placeholder="Package scanned and sorted into outbound transport..." class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">Planned Details / Remarks (Hidden from external user while Planned)</label>
+                    <textarea id="mEventNotes" rows="2" placeholder="Container inspected, security seal intact, transferred to domestic carrier fleet..." class="w-full text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"></textarea>
+                    <span class="text-[11px] text-slate-400 mt-1 block">External customer will only see these planned details once internal user clicks “Milestone Updated”.</span>
                   </div>
                   <div class="flex justify-end gap-2 pt-1">
                     <button type="button" onclick="cancelMilestoneForm()" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800">Cancel</button>
                     <button type="submit" id="saveMilestoneSubmitBtn" class="px-4 py-1.5 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition inline-flex items-center gap-1.5">
                       <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
-                      <span id="saveMilestoneBtnText">Save & Publish Milestone</span>
+                      <span id="saveMilestoneBtnText">Save Milestone</span>
                     </button>
                   </div>
                 </form>
               </div>
 
-              <!-- Milestones Timeline List -->
+              <!-- Milestones Timeline List with "Milestone Updated" Action Button -->
               <div id="staffMilestonesTimeline" class="space-y-4">
                 <!-- Rendered dynamically -->
               </div>
@@ -452,7 +478,7 @@
         </span>
       </div>
 
-      <!-- Search Bar for Customer (Feature 5 & 6: Allows customer to track another shipment by code, without seeing directory) -->
+      <!-- Search Bar for Customer -->
       <div id="customerSearchBanner" class="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl shadow-blue-900/10">
         <div class="max-w-2xl mx-auto text-center space-y-3">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm border border-white/20">
@@ -464,7 +490,7 @@
 
           <form onsubmit="handleCustomerSearchSubmit(event)" class="mt-6 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
             <div class="relative flex-1">
-              <input type="text" id="customerSearchInput" placeholder="e.g. TRK-89210-US" required
+              <input type="text" id="portalTrackingInput" placeholder="e.g. TRK-89210-US" required
                 class="w-full px-4 py-3 rounded-xl text-slate-800 text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner">
               <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5"></i>
             </div>
@@ -485,7 +511,7 @@
         <p class="text-sm text-slate-500 max-w-md mx-auto mt-1" id="customerNotFoundMsg">Please double-check your tracking number and try again.</p>
       </div>
 
-      <!-- Customer Active Tracking Card (Feature 7: View-Only Tracking Details) -->
+      <!-- Customer Active Tracking Card -->
       <div id="customerActiveCard" class="hidden space-y-6">
         <!-- Main Shipment Summary Card -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
@@ -510,7 +536,7 @@
             </div>
           </div>
 
-          <!-- Feature 7: Logistics Metadata (HBL/AWB, Vessel/Flight, Current Location, Latest Update) -->
+          <!-- Logistics Metadata (HBL/AWB, Vessel/Flight, Current Location, Latest Update) -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-100 text-xs">
             <div>
               <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">HBL / AWB</span>
@@ -550,7 +576,7 @@
                   <div id="custProgressLine" class="h-full bg-blue-600 transition-all duration-700 rounded-full" style="width: 0%;"></div>
                 </div>
                 
-                <!-- Dynamic Nodes: Waiting -> Milestone 1 -> Milestone 2 ... -> Delivered -->
+                <!-- Dynamic Nodes: Waiting -> Completed Milestones -> Planned Milestones -> Delivered -->
                 <div id="custProgressNodes" class="relative z-10 flex justify-between items-start gap-3">
                   <!-- Dynamically rendered by updatePipelineProgressBar -->
                 </div>
@@ -566,8 +592,8 @@
               </div>
               <div>
                 <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Shipped From (Origin)</p>
-                <p id="custSenderName" class="text-sm font-bold text-slate-900">Pacific Distribution Center</p>
-                <p id="custOriginCity" class="text-xs text-slate-500">Seattle, WA, USA</p>
+                <p id="custSenderName" class="text-sm font-bold text-slate-900">-</p>
+                <p id="custOriginCity" class="text-xs text-slate-500">-</p>
               </div>
             </div>
             <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/70 flex items-start gap-3">
@@ -576,8 +602,8 @@
               </div>
               <div>
                 <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Destination</p>
-                <p id="custReceiverName" class="text-sm font-bold text-slate-900">Jane Smith</p>
-                <p id="custDestCity" class="text-xs text-slate-500">New York, NY, USA</p>
+                <p id="custReceiverName" class="text-sm font-bold text-slate-900">-</p>
+                <p id="custDestCity" class="text-xs text-slate-500">-</p>
               </div>
             </div>
           </div>
@@ -607,7 +633,7 @@
     </div>
   </main>
 
-  <!-- MODAL 1: Create or Edit Shipment (Feature 1: Comprehensive Internal Fields) -->
+  <!-- MODAL 1: Create or Edit Shipment -->
   <div id="shipmentFormModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in duration-150">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -624,7 +650,7 @@
         <input type="hidden" id="editShipmentMode" value="create">
         <input type="hidden" id="editShipmentId" value="">
 
-        <!-- Feature 2: Customer Name Required Selection/Input -->
+        <!-- Customer Name Selection/Input -->
         <div class="bg-indigo-50/70 p-3.5 rounded-xl border border-indigo-100">
           <label class="block text-xs font-bold text-indigo-900 mb-1 flex items-center gap-1.5">
             <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-600"></i>
@@ -720,7 +746,7 @@
     </div>
   </div>
 
-  <!-- MODAL 2: Styled Confirmation Modal for Delete Actions (Zero alert/confirm) -->
+  <!-- MODAL 2: Styled Confirmation Modal for Delete Actions -->
   <div id="confirmDeleteModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-150 text-center">
       <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
@@ -1092,7 +1118,9 @@
             location: 'San Francisco, CA',
             timestamp: new Date(Date.now() - 3600000 * 48).toISOString(),
             statusTag: 'Created',
-            notes: 'Shipping label created. Seller preparing dispatch packaging.'
+            notes: 'Shipping label created. Seller preparing dispatch packaging.',
+            isPlanned: false,
+            isSentToCustomer: true
           },
           {
             id: 'm-2',
@@ -1100,7 +1128,9 @@
             location: 'San Francisco Hub, CA',
             timestamp: new Date(Date.now() - 3600000 * 30).toISOString(),
             statusTag: 'Pickup',
-            notes: 'Package collected and weighed at Bay Area logistics center.'
+            notes: 'Package collected and weighed at Bay Area logistics center.',
+            isPlanned: false,
+            isSentToCustomer: true
           },
           {
             id: 'm-3',
@@ -1108,7 +1138,19 @@
             location: 'Denver Logistics Center, CO',
             timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
             statusTag: 'En Route',
-            notes: 'Container loaded onto cargo transport headed for Southwest hub.'
+            notes: 'Container loaded onto cargo transport headed for Southwest hub.',
+            isPlanned: false,
+            isSentToCustomer: true
+          },
+          {
+            id: 'm-4',
+            title: 'Scheduled Customs & Terminal Clearance',
+            location: 'Austin Regional Logistics Hub, TX',
+            timestamp: new Date(Date.now() + 3600000 * 18).toISOString(),
+            statusTag: 'Customs Clearance',
+            notes: 'Planned inspection slot pre-reserved with regional cargo inspection team. Carrier dock 4.',
+            isPlanned: true,
+            isSentToCustomer: false
           }
         ]
       };
@@ -1158,10 +1200,6 @@
       const customers = [...new Set(allShipments.map(s => (s.customerName || '').trim()).filter(Boolean))];
       datalist.innerHTML = customers.map(c => `<option value="${c}"></option>`).join('');
     }
-
-    /* =================================================== */
-    /* FEATURE 2: CUSTOMER-WISE SHIPMENT ORGANIZATION      */
-    /* =================================================== */
 
     // Group shipments by customer
     function getCustomerGroups() {
@@ -1317,10 +1355,6 @@
       }
     };
 
-    /* =================================================== */
-    /* FEATURE 4: STAFF QUICK TRACKING NUMBER SEARCH       */
-    /* =================================================== */
-
     window.handleStaffQuickSearch = function(e) {
       if (e) e.preventDefault();
       const code = document.getElementById('staffQuickSearchInput').value.trim().toUpperCase();
@@ -1333,7 +1367,6 @@
       );
 
       if (found) {
-        // Automatically switch customer tab and open shipment
         selectedCustomerId = found.customerName || 'General Logistics';
         renderCustomerDirectory();
         renderCustomerShipmentsTable(selectedCustomerId);
@@ -1345,10 +1378,6 @@
       }
     };
 
-    /* =================================================== */
-    /* FEATURE 1: USER SHIPMENT PERMISSIONS (EDIT & DELETE)*/
-    /* =================================================== */
-
     window.selectShipment = function(id) {
       selectedShipmentId = id;
       const shipment = allShipments.find(s => s.id === id);
@@ -1359,7 +1388,6 @@
       }
       renderShipmentWorkstation(shipment);
 
-      // Smooth scroll to workstation on small screens
       document.getElementById('shipmentDetailWorkstation').scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
@@ -1389,11 +1417,9 @@
       const statusSelect = document.getElementById('detailStatusSelect');
       statusSelect.value = shipment.status;
 
-      // Render milestones timeline in staff workstation
       renderStaffMilestones(shipment.milestones || []);
     }
 
-    // Modal: Open for Create
     window.openCreateShipmentModal = function() {
       document.getElementById('editShipmentMode').value = 'create';
       document.getElementById('editShipmentId').value = '';
@@ -1404,7 +1430,6 @@
       document.getElementById('submitShipmentBtnText').innerText = "Register & Publish";
       document.getElementById('initialMilestoneFieldContainer').classList.remove('hidden');
 
-      // Reset form
       document.getElementById('shipmentForm').reset();
       regenerateTrackingCode();
       document.getElementById('shipmentCarrier').value = "SwiftExpress Logistics";
@@ -1423,7 +1448,6 @@
       lucide.createIcons();
     };
 
-    // Modal: Open for Edit (Feature 1: Modifying ALL shipment details)
     window.openEditShipmentModal = function(shipmentId) {
       const s = allShipments.find(item => item.id === shipmentId);
       if (!s) return;
@@ -1437,7 +1461,6 @@
       document.getElementById('submitShipmentBtnText').innerText = "Save All Changes";
       document.getElementById('initialMilestoneFieldContainer').classList.add('hidden');
 
-      // Populate all inputs
       document.getElementById('shipmentCustomerName').value = s.customerName || '';
       document.getElementById('shipmentTrackingNumber').value = s.trackingNumber || '';
       document.getElementById('shipmentNameRef').value = s.shipmentName || '';
@@ -1461,7 +1484,6 @@
       document.getElementById('shipmentFormModal').classList.add('hidden');
     };
 
-    // Form Submit: Create or Edit
     window.handleShipmentFormSubmit = async function(e) {
       e.preventDefault();
       const mode = document.getElementById('editShipmentMode').value;
@@ -1491,7 +1513,9 @@
           location: origin,
           timestamp: new Date().toISOString(),
           statusTag: status || 'Created',
-          notes: initialNote
+          notes: initialNote,
+          isPlanned: false,
+          isSentToCustomer: true
         };
 
         const newRecord = {
@@ -1533,7 +1557,6 @@
           showToast("Saved locally.", "info");
         }
       } else {
-        // Edit Mode: update all details
         const existing = allShipments.find(s => s.id === targetId);
         if (!existing) return;
 
@@ -1577,7 +1600,6 @@
       }
     };
 
-    // Delete Shipment (Feature 1)
     window.promptDeleteShipment = function(shipmentId) {
       const s = allShipments.find(item => item.id === shipmentId);
       if (!s) return;
@@ -1610,19 +1632,15 @@
       );
     };
 
-    /* =================================================== */
-    /* FEATURE 3: SHIPMENT MILESTONE MANAGEMENT            */
-    /* (Add, Edit, Delete Milestones)                      */
-    /* =================================================== */
-
     function renderStaffMilestones(milestones) {
       const container = document.getElementById('staffMilestonesTimeline');
+      // Sort chronologically by timestamp
       const sorted = [...milestones].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       if (sorted.length === 0) {
         container.innerHTML = `
           <div class="text-center py-6 border border-dashed border-slate-200 rounded-xl">
-            <p class="text-xs text-slate-400">No milestones registered yet. Click "Add New Milestone" above.</p>
+            <p class="text-xs text-slate-400">No milestones registered yet. Click "Add / Plan Milestone" above.</p>
           </div>
         `;
         return;
@@ -1632,34 +1650,64 @@
         const dateObj = new Date(m.timestamp);
         const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        
+        const isPlanned = m.isPlanned === true && m.isSentToCustomer !== true;
 
         return `
-          <div class="relative pl-6 pb-4 border-l-2 ${index === sorted.length - 1 ? 'border-transparent' : 'border-slate-200'}">
-            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-600 ring-4 ring-white flex items-center justify-center text-white text-[9px]">
-              <i data-lucide="check" class="w-2.5 h-2.5"></i>
+          <div class="relative pl-6 pb-4 border-l-2 ${index === sorted.length - 1 ? 'border-transparent' : (isPlanned ? 'border-dashed border-amber-300' : 'border-slate-200')}">
+            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full ${isPlanned ? 'bg-amber-500 ring-4 ring-amber-100' : 'bg-emerald-600 ring-4 ring-white'} flex items-center justify-center text-white text-[9px]">
+              <i data-lucide="${isPlanned ? 'clock' : 'check'}" class="w-2.5 h-2.5"></i>
             </div>
 
-            <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-100 flex flex-col gap-1">
+            <div class="${isPlanned ? 'bg-amber-50/70 border-amber-200 ring-1 ring-amber-400/30' : 'bg-slate-50/80 border-slate-100'} rounded-xl p-3.5 border flex flex-col gap-1.5 transition">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="text-xs font-bold text-slate-900">${m.title}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-slate-900">${m.title}</span>
+                  ${isPlanned 
+                    ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        Planned (Hidden from Customer)
+                       </span>` 
+                    : `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                        <i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                        Completed & Sent
+                       </span>`
+                  }
+                </div>
                 <span class="text-[10px] font-medium text-slate-500 font-mono">${formattedDate} &bull; ${formattedTime}</span>
               </div>
+
               <div class="flex items-center gap-1.5 text-xs text-slate-600">
                 <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
                 <span class="font-medium">${m.location}</span>
-                <span class="text-[10px] px-2 py-0.2 rounded font-semibold bg-slate-200 text-slate-700 ml-1">${m.statusTag || 'Event'}</span>
+                <span class="text-[10px] px-2 py-0.2 rounded font-semibold bg-white border border-slate-200 text-slate-700 ml-1">${m.statusTag || 'Event'}</span>
               </div>
-              ${m.notes ? `<p class="text-xs text-slate-500 mt-1 italic">"${m.notes}"</p>` : ''}
+
+              ${m.notes ? `<p class="text-xs text-slate-600 mt-0.5 bg-white/80 p-2 rounded-lg border border-slate-200/60 leading-relaxed italic">"${m.notes}"</p>` : ''}
               
-              <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 mt-1">
-                <button onclick="openEditMilestoneForm('${m.id}')" class="text-[11px] text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1">
-                  <i data-lucide="edit-2" class="w-3 h-3"></i>
-                  <span>Edit</span>
-                </button>
-                <button onclick="promptDeleteMilestone('${m.id}')" class="text-[11px] text-rose-500 hover:text-rose-700 font-medium inline-flex items-center gap-1">
-                  <i data-lucide="trash-2" class="w-3 h-3"></i>
-                  <span>Remove</span>
-                </button>
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/70 mt-1">
+                <div>
+                  ${isPlanned ? `
+                    <button onclick="handleSendMilestoneUpdate('${m.id}')" class="px-3 py-1 text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white rounded-lg shadow-sm transition inline-flex items-center gap-1.5" title="Push this milestone update to the external customer as Completed">
+                      <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                      <span>Milestone Updated</span>
+                    </button>
+                  ` : `
+                    <span class="text-[11px] text-emerald-700 font-semibold inline-flex items-center gap-1">
+                      <i data-lucide="check" class="w-3 h-3"></i> Visible to recipient
+                    </span>
+                  `}
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openEditMilestoneForm('${m.id}')" class="text-[11px] text-blue-600 hover:text-blue-800 font-medium inline-flex items-center gap-1">
+                    <i data-lucide="edit-2" class="w-3 h-3"></i>
+                    <span>Edit</span>
+                  </button>
+                  <button onclick="promptDeleteMilestone('${m.id}')" class="text-[11px] text-rose-500 hover:text-rose-700 font-medium inline-flex items-center gap-1">
+                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                    <span>Remove</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1673,10 +1721,13 @@
       const section = document.getElementById('addMilestoneFormSection');
       const isHidden = section.classList.contains('hidden');
       if (isHidden) {
-        document.getElementById('milestoneFormHeading').innerText = "Publish New Milestone";
-        document.getElementById('saveMilestoneBtnText').innerText = "Save & Publish Milestone";
+        document.getElementById('milestoneFormHeading').innerText = "Plan / Publish Milestone";
+        document.getElementById('saveMilestoneBtnText').innerText = "Save Milestone";
         document.getElementById('editingMilestoneId').value = "";
         document.getElementById('newMilestoneForm').reset();
+        
+        // Default to planned
+        document.getElementById('mModePlanned').checked = true;
 
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -1691,7 +1742,6 @@
       document.getElementById('addMilestoneFormSection').classList.add('hidden');
     };
 
-    // Edit Milestone Form
     window.openEditMilestoneForm = function(milestoneId) {
       if (!selectedShipmentId) return;
       const shipment = allShipments.find(s => s.id === selectedShipmentId);
@@ -1714,11 +1764,18 @@
       document.getElementById('mEventStatusTag').value = m.statusTag || '';
       document.getElementById('mEventNotes').value = m.notes || '';
 
+      const isPlanned = m.isPlanned === true && m.isSentToCustomer !== true;
+      if (isPlanned) {
+        document.getElementById('mModePlanned').checked = true;
+      } else {
+        document.getElementById('mModeCompleted').checked = true;
+      }
+
       document.getElementById('addMilestoneFormSection').classList.remove('hidden');
       document.getElementById('addMilestoneFormSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
-    // Save Milestone (Add or Edit)
+    // Save Milestone (Add or Edit) with Planned vs Completed Flag
     window.handleSaveMilestone = async function(e) {
       e.preventDefault();
       if (!selectedShipmentId) return;
@@ -1732,6 +1789,10 @@
       const dateTime = document.getElementById('mEventDateTime').value;
       const statusTag = document.getElementById('mEventStatusTag').value.trim();
       const notes = document.getElementById('mEventNotes').value.trim();
+      
+      const mode = document.querySelector('input[name="milestoneStateMode"]:checked')?.value || 'planned';
+      const isPlanned = mode === 'planned';
+      const isSentToCustomer = !isPlanned;
 
       const milestoneData = {
         id: editingId || ('m-' + Date.now()),
@@ -1739,7 +1800,9 @@
         location,
         timestamp: new Date(dateTime).toISOString(),
         statusTag,
-        notes
+        notes,
+        isPlanned,
+        isSentToCustomer
       };
 
       let updatedMilestones;
@@ -1750,8 +1813,11 @@
       }
 
       let newOverallStatus = shipment.status;
-      if (statusTag.toLowerCase().includes('delivered')) newOverallStatus = 'Delivered';
-      else if (statusTag.toLowerCase().includes('out for delivery')) newOverallStatus = 'Out for Delivery';
+      if (!isPlanned) {
+        if (statusTag.toLowerCase().includes('delivered')) newOverallStatus = 'Delivered';
+        else if (statusTag.toLowerCase().includes('out for delivery')) newOverallStatus = 'Out for Delivery';
+        else if (statusTag) newOverallStatus = statusTag;
+      }
 
       try {
         if (db && currentUser) {
@@ -1769,7 +1835,7 @@
 
         renderShipmentWorkstation(shipment);
         if (selectedCustomerId) renderCustomerShipmentsTable(selectedCustomerId);
-        showToast(editingId ? "Milestone updated!" : "Milestone published!", "success");
+        showToast(isPlanned ? "Planned milestone saved in advance!" : "Milestone published to customer as Completed!", "success");
         cancelMilestoneForm();
       } catch (err) {
         console.error("Save milestone error:", err);
@@ -1777,7 +1843,59 @@
       }
     };
 
-    // Prompt Delete Milestone (styled modal, no confirm)
+    // Feature Core: "Milestone Updated" Internal Trigger
+    window.handleSendMilestoneUpdate = async function(milestoneId) {
+      if (!selectedShipmentId) return;
+      const shipment = allShipments.find(s => s.id === selectedShipmentId);
+      if (!shipment || !shipment.milestones) return;
+
+      const targetMilestone = shipment.milestones.find(m => m.id === milestoneId);
+      if (!targetMilestone) return;
+
+      // Update milestone state: mark completed, send to external user
+      const updatedMilestones = shipment.milestones.map(m => {
+        if (m.id === milestoneId) {
+          return {
+            ...m,
+            isPlanned: false,
+            isSentToCustomer: true,
+            sentAt: new Date().toISOString()
+          };
+        }
+        return m;
+      });
+
+      // Update overall shipment status if appropriate
+      let newOverallStatus = shipment.status;
+      if (targetMilestone.statusTag) {
+        if (targetMilestone.statusTag.toLowerCase().includes('delivered')) newOverallStatus = 'Delivered';
+        else if (targetMilestone.statusTag.toLowerCase().includes('out for delivery')) newOverallStatus = 'Out for Delivery';
+        else newOverallStatus = targetMilestone.statusTag;
+      }
+
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'shipments', selectedShipmentId);
+          await setDoc(docRef, {
+            ...shipment,
+            status: newOverallStatus,
+            milestones: updatedMilestones,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } else {
+          shipment.milestones = updatedMilestones;
+          shipment.status = newOverallStatus;
+        }
+
+        renderShipmentWorkstation(shipment);
+        if (selectedCustomerId) renderCustomerShipmentsTable(selectedCustomerId);
+        showToast(`"Milestone Updated" sent to external user! Milestone marked as Completed.`, "success");
+      } catch (err) {
+        console.error("Send milestone update error:", err);
+        showToast("Failed to send milestone update.", "error");
+      }
+    };
+
     window.promptDeleteMilestone = function(milestoneId) {
       if (!selectedShipmentId) return;
       const shipment = allShipments.find(s => s.id === selectedShipmentId);
@@ -1785,7 +1903,7 @@
 
       openConfirmDeleteModal(
         "Remove Milestone Checkpoint?",
-        "Are you sure you want to remove this milestone from the customer's timeline?",
+        "Are you sure you want to remove this milestone?",
         async () => {
           const filtered = (shipment.milestones || []).filter(m => m.id !== milestoneId);
           try {
@@ -1834,11 +1952,6 @@
       }
     };
 
-    /* =================================================== */
-    /* FEATURE 5, 6 & 7: CUSTOMER TRACKING PORTAL          */
-    /* (Strict Isolation, View-Only, Query By Code)        */
-    /* =================================================== */
-
     window.handleCustomerSearchSubmit = function(e) {
       if (e) e.preventDefault();
       const inputEl = document.getElementById('portalTrackingInput');
@@ -1855,7 +1968,6 @@
         renderCustomerTrackingView(found);
         if (inputEl) inputEl.value = found.trackingNumber;
         
-        // Update URL hash/query without reloading so customer can bookmark or refresh
         try {
           const url = new URL(window.location.href);
           url.searchParams.set('track', found.trackingNumber);
@@ -1883,12 +1995,13 @@
       const statusStyle = getStatusBadgeStyle(shipment.status);
       pill.className = `mt-1 px-3 py-1 rounded-full text-xs font-semibold ${statusStyle.bg} ${statusStyle.text} inline-flex items-center gap-1.5`;
 
-      // Feature 7: Logistics Metadata
       document.getElementById('custHblAwb').innerText = shipment.hblAwb || 'N/A';
       document.getElementById('custVesselFlight').innerText = shipment.vesselFlight || (shipment.carrier || 'Standard Flight');
 
-      const sortedMilestones = [...(shipment.milestones || [])].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      const latestM = sortedMilestones[0];
+      // Check latest reached/completed milestone for current location
+      const completedMilestones = (shipment.milestones || []).filter(m => !(m.isPlanned === true && m.isSentToCustomer !== true));
+      completedMilestones.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const latestM = completedMilestones[0];
 
       document.getElementById('custCurrentLocation').innerText = latestM ? latestM.location : (shipment.origin || 'Origin Hub');
       document.getElementById('custLatestUpdate').innerText = latestM 
@@ -1904,34 +2017,39 @@
       renderCustomerMilestones(shipment.milestones || []);
     }
 
-    // Dynamic Milestone Pipeline
+    // Dynamic Milestone Pipeline with Planned vs Completed Nodes
     function updatePipelineProgressBar(shipment) {
       const container = document.getElementById('custProgressNodes');
       const progressLine = document.getElementById('custProgressLine');
       const percentLabel = document.getElementById('custProgressPercentLabel');
       if (!container) return;
 
-      const milestones = shipment.milestones ? [...shipment.milestones] : [];
-      milestones.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const allMilestones = shipment.milestones ? [...shipment.milestones] : [];
+      allMilestones.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
       const isDelivered = (shipment.status || '').toLowerCase().includes('delivered');
 
       const stages = [
         {
-          key: 'waiting',
+          key: 'start',
           badge: 'Start',
-          title: 'Waiting',
-          sub: 'Shipment Created',
+          title: 'Registered',
+          sub: shipment.origin || 'Origin Hub',
+          isPlanned: false,
+          isCompleted: true,
           isDeliveredNode: false
         }
       ];
 
-      milestones.forEach((m, idx) => {
+      allMilestones.forEach((m, idx) => {
+        const isPlanned = m.isPlanned === true && m.isSentToCustomer !== true;
         stages.push({
           key: `m-${m.id || idx}`,
-          badge: `Milestone ${idx + 1}`,
+          badge: isPlanned ? 'Planned' : `Reached`,
           title: m.title || `Milestone ${idx + 1}`,
-          sub: m.location || m.statusTag || '',
+          sub: isPlanned ? `Scheduled` : m.location,
+          isPlanned: isPlanned,
+          isCompleted: !isPlanned,
           isDeliveredNode: false
         });
       });
@@ -1941,12 +2059,15 @@
         badge: 'Final Goal',
         title: 'Delivered',
         sub: shipment.destination || 'Destination',
+        isPlanned: !isDelivered,
+        isCompleted: isDelivered,
         isDeliveredNode: true
       });
 
+      // Calculate progress percentage based on completed milestones
       const totalStages = stages.length;
-      const activeIdx = isDelivered ? totalStages - 1 : milestones.length;
-      const percent = totalStages > 1 ? Math.min(100, Math.round((activeIdx / (totalStages - 1)) * 100)) : 0;
+      const completedCount = stages.filter(s => s.isCompleted).length;
+      const percent = totalStages > 1 ? Math.min(100, Math.round(((completedCount - 1) / (totalStages - 1)) * 100)) : 0;
 
       if (progressLine) {
         progressLine.style.width = `${percent}%`;
@@ -1962,37 +2083,35 @@
           : "text-xs font-bold text-blue-600 font-mono bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100";
       }
 
-      container.innerHTML = stages.map((stage, idx) => {
-        const isCompleted = idx <= activeIdx;
-        const isCurrent = idx === activeIdx;
-
+      container.innerHTML = stages.map((stage) => {
         let iconName = 'check';
-        if (idx === 0) {
-          iconName = isCompleted ? 'check' : 'clock';
-        } else if (stage.isDeliveredNode) {
-          iconName = isCompleted ? 'check-circle-2' : 'home';
-        } else {
-          iconName = isCompleted ? 'check' : 'map-pin';
-        }
+        let circleClasses = '';
+        let textClasses = '';
+        let badgeClasses = '';
 
-        let circleClasses = 'bg-slate-100 text-slate-400 ring-4 ring-white border border-slate-300';
-        let textClasses = 'text-slate-400 font-medium';
-        let badgeClasses = 'bg-slate-100 text-slate-500';
-
-        if (isCompleted) {
+        if (stage.isCompleted) {
           if (stage.isDeliveredNode) {
             circleClasses = 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20 ring-4 ring-emerald-100';
             textClasses = 'text-emerald-700 font-bold';
             badgeClasses = 'bg-emerald-100 text-emerald-800 font-bold';
-          } else if (isCurrent && !isDelivered) {
-            circleClasses = 'bg-blue-600 text-white shadow-md shadow-blue-500/20 ring-4 ring-blue-100 pulse-dot';
-            textClasses = 'text-blue-700 font-bold';
-            badgeClasses = 'bg-blue-100 text-blue-800 font-bold';
+            iconName = 'check-circle-2';
           } else {
             circleClasses = 'bg-blue-600 text-white shadow-sm ring-4 ring-white';
             textClasses = 'text-slate-800 font-semibold';
             badgeClasses = 'bg-slate-100 text-slate-700 font-semibold';
+            iconName = 'check';
           }
+        } else if (stage.isPlanned) {
+          // Planned Milestone node: distinct Planned styling with clock/calendar icon
+          circleClasses = 'bg-amber-50 text-amber-600 border-2 border-dashed border-amber-400 ring-4 ring-white';
+          textClasses = 'text-amber-800 font-medium';
+          badgeClasses = 'bg-amber-100 text-amber-800 font-semibold border border-amber-200';
+          iconName = 'clock';
+        } else {
+          circleClasses = 'bg-slate-100 text-slate-400 ring-4 ring-white border border-slate-300';
+          textClasses = 'text-slate-400 font-medium';
+          badgeClasses = 'bg-slate-100 text-slate-500';
+          iconName = stage.isDeliveredNode ? 'home' : 'map-pin';
         }
 
         return `
@@ -2017,6 +2136,7 @@
       lucide.createIcons();
     }
 
+    // Customer-facing Milestone Timeline: Planned details are masked until internal user clicks "Milestone Updated"
     function renderCustomerMilestones(milestones) {
       const container = document.getElementById('custMilestonesContainer');
       const sorted = [...milestones].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -2027,33 +2147,65 @@
       }
 
       container.innerHTML = sorted.map((m, index) => {
-        const isLatest = index === 0;
+        const isPlanned = m.isPlanned === true && m.isSentToCustomer !== true;
+        const isLatest = index === 0 && !isPlanned;
+        
         const dateObj = new Date(m.timestamp);
         const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
         return `
           <div class="relative group">
-            <div class="absolute -left-[33px] sm:-left-[41px] top-1 w-6 h-6 rounded-full ${isLatest ? 'bg-blue-600 ring-4 ring-blue-100' : 'bg-slate-300 ring-4 ring-white'} text-white flex items-center justify-center">
-              <i data-lucide="${isLatest ? 'map-pin' : 'check'}" class="w-3.5 h-3.5"></i>
+            <div class="absolute -left-[33px] sm:-left-[41px] top-1 w-6 h-6 rounded-full ${
+              isPlanned 
+                ? 'bg-amber-100 text-amber-700 ring-4 ring-amber-50 border border-amber-300' 
+                : (isLatest ? 'bg-blue-600 text-white ring-4 ring-blue-100' : 'bg-emerald-600 text-white ring-4 ring-emerald-50')
+            } flex items-center justify-center">
+              <i data-lucide="${isPlanned ? 'calendar-clock' : (isLatest ? 'map-pin' : 'check')}" class="w-3.5 h-3.5"></i>
             </div>
 
-            <div class="${isLatest ? 'bg-blue-50/70 border-blue-200 ring-1 ring-blue-500/20' : 'bg-slate-50 border-slate-200'} border rounded-2xl p-4 sm:p-5 transition hover:shadow-sm">
+            <div class="${
+              isPlanned 
+                ? 'bg-amber-50/40 border border-dashed border-amber-200 shadow-none' 
+                : (isLatest ? 'bg-blue-50/70 border-blue-200 ring-1 ring-blue-500/20' : 'bg-slate-50 border-slate-200')
+            } border rounded-2xl p-4 sm:p-5 transition hover:shadow-sm">
+              
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <h5 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <span>${m.title}</span>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h5 class="text-sm font-bold text-slate-900">${m.title}</h5>
+                  ${isPlanned 
+                    ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        Planned
+                       </span>` 
+                    : `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider flex items-center gap-1">
+                        <i data-lucide="check" class="w-3 h-3"></i>
+                        Completed
+                       </span>`
+                  }
                   ${isLatest ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white uppercase tracking-wider">Latest Checkpoint</span>' : ''}
-                </h5>
-                <span class="text-xs text-slate-500 font-medium">${dateStr} &bull; ${timeStr}</span>
+                </div>
+                <span class="text-xs ${isPlanned ? 'text-amber-700' : 'text-slate-500'} font-medium">
+                  ${isPlanned ? 'Estimated: ' : ''}${dateStr} &bull; ${timeStr}
+                </span>
               </div>
 
               <div class="flex items-center gap-2 mt-2 text-xs text-slate-600">
-                <i data-lucide="navigation-2" class="w-3.5 h-3.5 text-blue-600"></i>
+                <i data-lucide="navigation-2" class="w-3.5 h-3.5 ${isPlanned ? 'text-amber-500' : 'text-blue-600'}"></i>
                 <span class="font-semibold">${m.location}</span>
-                <span class="text-[10px] px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-medium">${m.statusTag || 'Update'}</span>
+                <span class="text-[10px] px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-medium">
+                  ${isPlanned ? 'Planned Phase' : (m.statusTag || 'Completed Checkpoint')}
+                </span>
               </div>
 
-              ${m.notes ? `<p class="mt-2 text-xs text-slate-600 bg-white/70 p-2.5 rounded-xl border border-slate-100 leading-relaxed">${m.notes}</p>` : ''}
+              <!-- Planned details masking: Planned details remain confidential until sent -->
+              ${isPlanned 
+                ? `<div class="mt-2 text-xs text-amber-800/90 bg-amber-100/40 p-2.5 rounded-xl border border-amber-200/60 flex items-center gap-2">
+                    <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-600 flex-shrink-0"></i>
+                    <span>Planned milestone checkpoint. Detailed arrival remarks and live logs will be published once this milestone is reached.</span>
+                   </div>`
+                : (m.notes ? `<p class="mt-2 text-xs text-slate-600 bg-white/70 p-2.5 rounded-xl border border-slate-100 leading-relaxed">${m.notes}</p>` : '')
+              }
             </div>
           </div>
         `;
@@ -2072,7 +2224,6 @@
       }
     };
 
-    // Safe Brand Logo Navigation (Guarantees external users cannot break into staff view)
     window.handleBrandLogoClick = function() {
       if (isCustomerLinkMode) {
         switchView('customer');
@@ -2082,7 +2233,6 @@
     };
 
     window.switchView = function(view) {
-      // Security Enforcement: Prevent external users from entering staff hub
       if (isCustomerLinkMode && view === 'staff') {
         return;
       }
@@ -2149,7 +2299,6 @@
       showToast("Tracking link copied to clipboard!", "success");
     };
 
-    /* PRIVACY ENFORCEMENT & DEEP LINK LOCK (Feature 5 & 6) */
     function detectAndEnforceCustomerLink() {
       const urlParams = new URLSearchParams(window.location.search);
       let trackParam = urlParams.get('track');
@@ -2163,13 +2312,11 @@
         isCustomerLinkMode = true;
         targetTrackingCode = trackParam.trim().toUpperCase();
 
-        // Hide all staff controls, customer directory, and hub
         document.getElementById('roleNavContainer')?.classList.add('hidden');
         document.getElementById('cloudConfigNavBtn')?.classList.add('hidden');
         document.getElementById('quickCreateBtn')?.classList.add('hidden');
         document.getElementById('staffView')?.classList.add('hidden');
 
-        // Show Customer Verified Header & Portal
         document.getElementById('customerOnlyBadge')?.classList.remove('hidden');
         document.getElementById('customerOnlyBadge')?.classList.add('inline-flex');
         document.getElementById('customerView')?.classList.remove('hidden');
@@ -2226,7 +2373,6 @@
       showToast("Connected to tmpltracking project", "info");
     };
 
-    // Initialize application on window load
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       detectAndEnforceCustomerLink();
