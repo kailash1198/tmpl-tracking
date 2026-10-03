@@ -67,12 +67,13 @@
       <div class="flex items-center justify-between h-16">
         <!-- Logo & Brand -->
         <div class="flex items-center space-x-3 cursor-pointer" onclick="handleBrandLogoClick()">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-            <i data-lucide="package-check" class="w-6 h-6"></i>
+          <div id="brandLogoContainer" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 overflow-hidden flex-shrink-0">
+            <i id="defaultBrandIcon" data-lucide="package-check" class="w-6 h-6"></i>
+            <img id="customBrandImage" src="" alt="Brand Logo" class="w-full h-full object-cover hidden">
           </div>
           <div>
             <span class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-1.5">
-              TMPL <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-700 border border-blue-200">LIVE</span>
+              <span id="brandNameText">TMPL</span> <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-blue-100 text-blue-700 border border-blue-200">LIVE</span>
             </span>
             <p class="text-xs text-slate-500 font-medium hidden sm:block">Real-Time Shipment Tracking by TMPL</p>
           </div>
@@ -96,6 +97,12 @@
               <span>Customer Portal</span>
             </button>
           </div>
+
+          <!-- Logo Management Button (Internal User) -->
+          <button id="logoManageNavBtn" onclick="openLogoUploadModal()" title="Customize App Logo & Branding" class="p-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl border border-slate-200 transition flex items-center gap-1 text-xs">
+            <i data-lucide="image" class="w-4 h-4 text-indigo-600"></i>
+            <span class="hidden lg:inline font-medium text-slate-700">Logo</span>
+          </button>
 
           <!-- Firebase Cloud Config Button -->
           <button id="cloudConfigNavBtn" onclick="openConfigModal()" title="Firebase Settings for Netlify / Web" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl border border-slate-200 transition flex items-center gap-1 text-xs">
@@ -468,8 +475,9 @@
       <!-- Dedicated Tracking Header (Shown in Customer-Only Link Mode) -->
       <div id="customerDirectHeader" class="hidden bg-white border border-blue-100 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
-            <i data-lucide="package-search" class="w-5 h-5"></i>
+          <div id="customerHeaderLogoContainer" class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm overflow-hidden flex-shrink-0">
+            <i id="customerHeaderDefaultIcon" data-lucide="package-search" class="w-5 h-5"></i>
+            <img id="customerHeaderCustomLogo" src="" alt="Logo" class="w-full h-full object-cover hidden">
           </div>
           <div>
             <h3 class="font-bold text-slate-900 text-sm sm:text-base">Dedicated Consignment Tracker</h3>
@@ -789,60 +797,89 @@
         </button>
       </div>
 
-      <div class="bg-blue-50/70 border border-blue-100 rounded-xl p-3 text-xs text-blue-800 space-y-1">
-        <p class="font-semibold flex items-center gap-1.5">
-          <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
-          Live Connected to tmpltracking
-        </p>
-        <p class="text-[11px] leading-relaxed text-blue-700">
-          Firebase credentials are authenticated. All edits, creations, and milestones automatically synchronize in real time.
-        </p>
+  <!-- MODAL 4: Change App Logo & Branding (Internal User) -->
+  <div id="logoUploadModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in duration-150">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <i data-lucide="image-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Change Application Logo</h3>
+            <p class="text-[11px] text-slate-500">Updates live across internal and customer portal</p>
+          </div>
+        </div>
+        <button onclick="closeLogoUploadModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
-      <form id="firebaseConfigForm" onsubmit="saveCustomFirebaseConfig(event)" class="space-y-3">
+      <!-- Current / Live Preview Container -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+        <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Logo Preview</span>
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md border-2 border-white overflow-hidden p-0.5">
+          <i id="modalLogoDefaultIcon" data-lucide="package-check" class="w-9 h-9"></i>
+          <img id="modalLogoPreviewImg" src="" alt="Logo Preview" class="w-full h-full object-cover hidden rounded-xl">
+        </div>
+        <p id="modalLogoStatusText" class="text-xs text-slate-600 font-medium mt-2">Using default TMPL badge icon</p>
+      </div>
+
+      <form onsubmit="handleSaveLogo(event)" class="space-y-4">
+        <!-- File Picker -->
         <div>
-          <label class="block text-[11px] font-semibold text-slate-700 mb-1">API Key</label>
-          <input type="text" id="cfgApiKey" placeholder="AIzaSy..." class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Auth Domain</label>
-            <input type="text" id="cfgAuthDomain" placeholder="your-project.firebaseapp.com" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Project ID</label>
-            <input type="text" id="cfgProjectId" placeholder="your-project-id" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Storage Bucket</label>
-            <input type="text" id="cfgStorageBucket" placeholder="your-project.appspot.com" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Messaging Sender ID</label>
-            <input type="text" id="cfgSenderId" placeholder="1029384756" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-          </div>
-        </div>
-        <div>
-          <label class="block text-[11px] font-semibold text-slate-700 mb-1">App ID</label>
-          <input type="text" id="cfgAppId" placeholder="1:1029384756:web:abcd1234" class="w-full text-xs font-mono px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-indigo-600"></i>
+            <span>Upload Logo Image</span>
+          </label>
+          <input type="file" id="logoFileInput" accept="image/*" onchange="handleLogoFileSelect(event)" 
+            class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border border-slate-200 rounded-xl p-1 bg-white">
+          <span class="text-[11px] text-slate-400 mt-1 block">Supports PNG, JPG, SVG, WebP. Recommended square (1:1).</span>
         </div>
 
-        <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-          <button type="button" onclick="loadDefaultConfigSample()" class="text-xs text-slate-500 hover:text-slate-800 underline">
-            Reset to tmpltracking
+        <!-- Or Paste Image URL -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+            <i data-lucide="link-2" class="w-3.5 h-3.5 text-slate-500"></i>
+            <span>Or Enter Image URL</span>
+          </label>
+          <input type="url" id="logoUrlInput" oninput="handleLogoUrlInput(event)" placeholder="https://example.com/logo.png" 
+            class="w-full text-xs px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+          <button type="button" onclick="handleResetLogoToDefault()" class="text-xs text-rose-600 hover:text-rose-800 font-medium inline-flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span>Reset to Default</span>
           </button>
-          <div class="flex gap-2">
-            <button type="button" onclick="closeConfigModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-800">Close</button>
-            <button type="submit" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition">
-              Save & Connect
+
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeLogoUploadModal()" class="px-3.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800">
+              Cancel
+            </button>
+            <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm transition inline-flex items-center gap-1.5">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i>
+              <span>Save & Apply</span>
             </button>
           </div>
         </div>
       </form>
     </div>
   </div>
+
+  <!-- FLOATING BRANDING FOOTER BADGE (Bottom-Right) -->
+  <aside class="fixed bottom-4 right-4 z-40 select-none">
+    <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" 
+      class="group flex items-center gap-2 px-3.5 py-2 bg-white/95 hover:bg-white backdrop-blur-md border border-slate-200/90 hover:border-pink-300 rounded-full shadow-lg hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 transform hover:-translate-y-0.5" 
+      title="Visit Kailash on Instagram">
+      <span class="text-xs font-semibold text-slate-700 group-hover:text-slate-900 tracking-tight flex items-center gap-1">
+        Made by <strong class="text-indigo-600 group-hover:text-pink-600 transition-colors">Kailash</strong> <span class="text-rose-500 text-sm animate-pulse inline-block">❤️</span>
+      </span>
+      <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-2xs group-hover:rotate-12 transition-transform">
+        <i data-lucide="instagram" class="w-3 h-3"></i>
+      </span>
+    </a>
+  </aside>
 
   <!-- APPLICATION LOGIC & FIREBASE INITIALIZATION -->
   <script type="module">
@@ -860,6 +897,7 @@
     /* Global Context & Direct Firebase Configuration */
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'tmpltracking';
     const STORAGE_KEY = 'swifttrack_firebase_config_v1';
+    const LOGO_STORAGE_KEY = 'tmpl_custom_app_logo_v1';
 
     // Direct Firebase configuration provided for tmpltracking
     const firebaseConfig = {
@@ -879,8 +917,11 @@
     let auth = null;
     let db = null;
     let unsubscribeShipments = null;
+    let unsubscribeSettings = null;
     let currentUser = null;
     let allShipments = [];
+    let currentAppLogoUrl = localStorage.getItem(LOGO_STORAGE_KEY) || '';
+    let tempLogoPreviewUrl = '';
     let selectedCustomerId = null;
     let selectedShipmentId = null;
     let activeCustomerShipment = null;
@@ -1012,6 +1053,7 @@
 
         updateConnectionBadge(true);
         setupShipmentsListener();
+        setupSettingsListener();
       } catch (err) {
         console.warn("Firebase live connect note:", err);
         updateConnectionBadge(false);
@@ -1096,6 +1138,177 @@
         updateConnectionBadge(false);
       });
     }
+
+    // App Logo & Settings Listener (Firebase Cloud Sync for Logo)
+    function setupSettingsListener() {
+      if (!currentUser || !db) return;
+      try {
+        const brandingDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'branding', 'portalLogo');
+        unsubscribeSettings = onSnapshot(brandingDocRef, (snap) => {
+          if (snap.exists() && snap.data()?.logoUrl) {
+            const cloudLogo = snap.data().logoUrl;
+            applyAppLogo(cloudLogo);
+          } else if (currentAppLogoUrl) {
+            applyAppLogo(currentAppLogoUrl);
+          }
+        }, (err) => {
+          console.warn("Branding listener warning:", err);
+          if (currentAppLogoUrl) applyAppLogo(currentAppLogoUrl);
+        });
+      } catch (e) {
+        console.warn("Settings listener error:", e);
+      }
+    }
+
+    // Apply Logo throughout the application
+    function applyAppLogo(logoUrl) {
+      currentAppLogoUrl = logoUrl || '';
+      try {
+        if (logoUrl) {
+          localStorage.setItem(LOGO_STORAGE_KEY, logoUrl);
+        } else {
+          localStorage.removeItem(LOGO_STORAGE_KEY);
+        }
+      } catch (e) {}
+
+      // Top Navigation Brand Logo
+      const navIcon = document.getElementById('defaultBrandIcon');
+      const navImg = document.getElementById('customBrandImage');
+      if (navIcon && navImg) {
+        if (logoUrl) {
+          navImg.src = logoUrl;
+          navImg.classList.remove('hidden');
+          navIcon.classList.add('hidden');
+        } else {
+          navImg.classList.add('hidden');
+          navImg.src = '';
+          navIcon.classList.remove('hidden');
+        }
+      }
+
+      // Customer Dedicated Header Logo
+      const custHeaderIcon = document.getElementById('customerHeaderDefaultIcon');
+      const custHeaderImg = document.getElementById('customerHeaderCustomLogo');
+      if (custHeaderIcon && custHeaderImg) {
+        if (logoUrl) {
+          custHeaderImg.src = logoUrl;
+          custHeaderImg.classList.remove('hidden');
+          custHeaderIcon.classList.add('hidden');
+        } else {
+          custHeaderImg.classList.add('hidden');
+          custHeaderImg.src = '';
+          custHeaderIcon.classList.remove('hidden');
+        }
+      }
+
+      // Sync Modal Preview if open
+      updateLogoModalPreview(logoUrl);
+      lucide.createIcons();
+    }
+
+    function updateLogoModalPreview(url) {
+      const modalIcon = document.getElementById('modalLogoDefaultIcon');
+      const modalImg = document.getElementById('modalLogoPreviewImg');
+      const modalStatus = document.getElementById('modalLogoStatusText');
+
+      if (modalIcon && modalImg) {
+        if (url) {
+          modalImg.src = url;
+          modalImg.classList.remove('hidden');
+          modalIcon.classList.add('hidden');
+          if (modalStatus) modalStatus.innerText = "Custom logo active";
+        } else {
+          modalImg.classList.add('hidden');
+          modalImg.src = '';
+          modalIcon.classList.remove('hidden');
+          if (modalStatus) modalStatus.innerText = "Using default TMPL badge icon";
+        }
+      }
+    }
+
+    // Modal Operations for Logo Upload
+    window.openLogoUploadModal = function() {
+      tempLogoPreviewUrl = currentAppLogoUrl || '';
+      const urlInput = document.getElementById('logoUrlInput');
+      const fileInput = document.getElementById('logoFileInput');
+      if (urlInput) urlInput.value = (currentAppLogoUrl.startsWith('data:') ? '' : currentAppLogoUrl);
+      if (fileInput) fileInput.value = '';
+
+      updateLogoModalPreview(tempLogoPreviewUrl);
+      document.getElementById('logoUploadModal').classList.remove('hidden');
+      lucide.createIcons();
+    };
+
+    window.closeLogoUploadModal = function() {
+      document.getElementById('logoUploadModal').classList.add('hidden');
+      tempLogoPreviewUrl = '';
+    };
+
+    window.handleLogoFileSelect = function(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast("Please select a valid image file.", "error");
+        return;
+      }
+
+      // Check size limit: 1.5MB recommended for Firestore/local base64
+      if (file.size > 2 * 1024 * 1024) {
+        showToast("Image size should be below 2MB for fast loading.", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const base64Data = evt.target.result;
+        tempLogoPreviewUrl = base64Data;
+        const urlInput = document.getElementById('logoUrlInput');
+        if (urlInput) urlInput.value = '';
+        updateLogoModalPreview(base64Data);
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.handleLogoUrlInput = function(e) {
+      const val = e.target.value.trim();
+      tempLogoPreviewUrl = val;
+      updateLogoModalPreview(val);
+    };
+
+    window.handleResetLogoToDefault = async function() {
+      tempLogoPreviewUrl = '';
+      applyAppLogo('');
+      try {
+        if (db && currentUser) {
+          const brandingDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'branding', 'portalLogo');
+          await setDoc(brandingDocRef, { logoUrl: '', updatedAt: new Date().toISOString() }, { merge: true });
+        }
+      } catch (err) {
+        console.warn("Reset logo cloud warning:", err);
+      }
+      closeLogoUploadModal();
+      showToast("App logo reset to default TMPL badge", "info");
+    };
+
+    window.handleSaveLogo = async function(e) {
+      e.preventDefault();
+      const targetLogo = tempLogoPreviewUrl || document.getElementById('logoUrlInput')?.value.trim() || '';
+
+      applyAppLogo(targetLogo);
+
+      try {
+        if (db && currentUser) {
+          const brandingDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'branding', 'portalLogo');
+          await setDoc(brandingDocRef, { logoUrl: targetLogo, updatedAt: new Date().toISOString() }, { merge: true });
+        }
+      } catch (err) {
+        console.warn("Cloud logo save error:", err);
+      }
+
+      closeLogoUploadModal();
+      showToast("Application logo updated successfully throughout the portal!", "success");
+    };
 
     async function seedInitialDemoData() {
       const sampleId = 'trk-89210-us';
@@ -2400,6 +2613,9 @@
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       detectAndEnforceCustomerLink();
+      if (currentAppLogoUrl) {
+        applyAppLogo(currentAppLogoUrl);
+      }
       initFirebaseService(activeFirebaseConfig);
     });
   </script>
